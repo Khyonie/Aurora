@@ -1,0 +1,8 @@
+# Config file for Aurora
+
+name:Aurora
+source:src
+secondarysource:
+output:~/Servers/DevServer/1182/plugins/Aurora.jar
+classpath:lib/Eden-051322-1.5.0.jar:lib/Rosetta.jar:lib/Surface2.jar:lib/Checkpoint.jar:lib/fastutil-8.5.6.jar:lib/spigot-1.18.2-R0.1-SNAPSHOT.jar:lib/spigot-api-1.18.2-R0.1-SNAPSHOT-shaded.jar:src/
+input:
