@@ -26,7 +26,7 @@ public class PylonGui
 	public PylonGui(HumanEntity e)
 	{
 		this.gui = new PagedSurfaceGui(
-			56, // Inv size
+			54, // Inv size
 			"Pylon network", // Inv name
 			e,
 			0, // Top bar row
@@ -34,7 +34,7 @@ public class PylonGui
 			Arrays.asList(
 				new GuiComponent[] {
 					closeItem(),
-					(e.getBedLocation() == null ? GuiUtils.BLACK_PANE_GUI : spawnTeleportItem((Player) e))
+					(((Player) e).getBedSpawnLocation() == null ? GuiUtils.BLACK_PANE_GUI : spawnTeleportItem((Player) e))
 				}
 			), // Top bar data
 			DefaultClickAction.CANCEL,

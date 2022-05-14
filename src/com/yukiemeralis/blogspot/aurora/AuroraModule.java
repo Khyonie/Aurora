@@ -26,20 +26,40 @@ import fish.yukiemeralis.eden.utils.PrintUtils;
 
 @ModInfo(
     modName = "Aurora",
-    description = "Various fun/useful things for Segue SMP.",
+    description = "Various fun/useful things for my SMPs.",
     maintainer = "Yuki_emeralis",
     modIcon = Material.SALMON,
-    version = "1.1",
+    version = "1.2.2",
     supportedApiVersions = {"v1_16_R3", "v1_17_R1", "v1_18_R1", "v1_18_R2"}
 )
-@LoadBefore(loadBefore = "Surface")
+@LoadBefore(loadBefore = {"Surface2", "Checkpoint"})
 @EdenConfig
-@DefaultConfig(keys = {"1.17_weather_fix"}, values = "false")
+@DefaultConfig(
+    keys =   {"1.17_weather_fix", "enforce_security"}, 
+    values = {"false",            "true"}
+)
 @ModuleFamily(name = "Aurora", icon = Material.SALMON)
 public class AuroraModule extends EdenModule
 {
-	//static Map<Player, AuroraPlayerData> PLAYER_DATA = new HashMap<>();
     private static AuroraModule instance;
+
+    static List<String> DEFAULT_COMMAND_PERMISSIONS = new ArrayList<>() {{
+        add("Aurora.aur");
+        add("Aurora.aur.trees");
+        add("Aurora.aur.pylons");
+        add("Aurora.aur.pylons.name");
+        add("Aurora.aur.pylons.material");
+        add("Aurora.aur.pylons.password");
+        add("Aurora.aur.pylons.clearpassword");
+        add("Aurora.aur.pylons.add");
+        add("Aurora.aur.pylons.remove");
+    }};
+
+    static List<String> ADMIN_COMMAND_PERMISSIONS = new ArrayList<>() {{
+        add("Aurora.aur.item");
+        add("Aurora.aur.item.name");
+        add("Aurora.aur.item.lore");
+    }};
 	
     public AuroraModule()
     {

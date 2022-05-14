@@ -6,14 +6,17 @@ import java.util.List;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
 
 import fish.yukiemeralis.eden.Eden;
+import fish.yukiemeralis.eden.utils.PrintUtils;
 
 public class Treecapitator implements Listener
 {
@@ -76,6 +79,7 @@ public class Treecapitator implements Listener
 
         // Seed open
         open.add(event.getBlock());
+        int logsMarked = 1;
 
         World world = event.getBlock().getWorld();
         Block host = event.getBlock();
@@ -111,6 +115,7 @@ public class Treecapitator implements Listener
                         if (!LOG_TYPES.contains(targetted.getType()) || open.contains(targetted) || closed.contains(targetted))
                             continue;
 
+                        logsMarked++;
                         open.add(targetted);
                     }
 
@@ -122,5 +127,28 @@ public class Treecapitator implements Listener
         closed.forEach(block -> {
             block.breakNaturally();
         });
+
+        Damageable meta = (Damageable) held.getItemMeta();
+        int unbreakingLevel = meta.getEnchantLevel(Enchantment.DURABILITY);
+
+        if (meta.getDamage() == held.getType().getMaxDurability())
+        {
+            // Final break
+            event.getPlayer().getEquipment().setItem(EquipmentSlot.HAND, null);
+            return;
+        }
+
+        // Damage item
+        int finalDamage = logsMarked / (1 + unbreakingLevel); // Simulate unbreaking
+        meta.setDamage(meta.getDamage() + finalDamage);
+
+        // Add a grace use
+        if (meta.getDamage() >= held.getType().getMaxDurability())
+        {
+            PrintUtils.sendMessage(event.getPlayer(), "Your axe has 1 use left.");
+            meta.setDamage(held.getType().getMaxDurability());
+        }
+
+        held.setItemMeta(meta);
     }
 }
