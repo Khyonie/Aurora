@@ -1,4 +1,4 @@
-package com.yukiemeralis.blogspot.aurora;
+package fish.yukiemeralis.aurora;
 
 import java.util.Random;
 

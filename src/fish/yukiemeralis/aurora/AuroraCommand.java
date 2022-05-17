@@ -1,23 +1,33 @@
-package com.yukiemeralis.blogspot.aurora;
+package fish.yukiemeralis.aurora;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import com.yukiemeralis.blogspot.aurora.pylons.Pylon;
-import com.yukiemeralis.blogspot.aurora.pylons.PylonNetwork;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import fish.yukiemeralis.aurora.pylons.Pylon;
+import fish.yukiemeralis.aurora.pylons.PylonNetwork;
+import fish.yukiemeralis.aurora.rpg.AuroraRpgStats;
+import fish.yukiemeralis.aurora.rpg.RpgSkillInstance;
+import fish.yukiemeralis.aurora.rpg.enums.AuroraSkill;
+import fish.yukiemeralis.aurora.rpg.enums.RpgStat;
 import fish.yukiemeralis.eden.Eden;
 import fish.yukiemeralis.eden.command.EdenCommand;
 import fish.yukiemeralis.eden.module.EdenModule;
 import fish.yukiemeralis.eden.permissions.ModulePlayerData;
+import fish.yukiemeralis.eden.surface2.SimpleComponentBuilder;
+import fish.yukiemeralis.eden.surface2.component.GuiComponent;
+import fish.yukiemeralis.eden.surface2.component.GuiItemStack;
+import fish.yukiemeralis.eden.surface2.enums.DefaultClickAction;
+import fish.yukiemeralis.eden.surface2.special.PagedSurfaceGui;
 import fish.yukiemeralis.eden.utils.ChatUtils;
 import fish.yukiemeralis.eden.utils.ChatUtils.ChatAction;
 import fish.yukiemeralis.eden.utils.ItemUtils;
@@ -29,7 +39,7 @@ public class AuroraCommand extends EdenCommand
 	{
 		super("aur", parent_module);
 
-		addBranch("trees", "pylons", "item", "mob");
+		addBranch("trees", "pylons", "item", "mob", "skills", "addsp", "stats", "track");
 
 		getBranch("item").addBranch("name", "lore");
 
@@ -40,6 +50,8 @@ public class AuroraCommand extends EdenCommand
 		getBranch("pylons").getBranch("clearpassword").addBranch("<ALL_PYLONS>");
 		getBranch("pylons").getBranch("add").addBranch("<ONLINE_PLAYERS>");
 		getBranch("pylons").getBranch("remove").addBranch("<ONLINE_PLAYERS>");
+
+		getBranch("track").addBranch("<ALL_STATS>");
 	}
 
 	@EdenCommandHandler(argsCount = 1, description = "Toggles treecapitator.", usage = "aur trees")
@@ -471,8 +483,6 @@ public class AuroraCommand extends EdenCommand
 				this.sendErrorMessage(sender, args[1], "item");
 				return;
 		}
-
-		
 	}
 
 	@EdenCommandHandler(usage = "aur mobs <mobclass>", description = "Summons a custom mob.", argsCount = 2)
@@ -483,7 +493,7 @@ public class AuroraCommand extends EdenCommand
 		/**
 		Class<? extends EntityInsentient> mobClass;
 		try {
-			mobClass = (Class<? extends EntityInsentient>) Class.forName("com.yukiemeralis.blogspot.aurora.mobs." + args[1]);
+			mobClass = (Class<? extends EntityInsentient>) Class.forName("fish.yukiemeralis.aurora.mobs." + args[1]);
 		} catch (ClassNotFoundException e) {
 			PrintUtils.sendMessage(sender, "Could not find a custom mob named \"" + args[1] + "\".");
 			return;
@@ -500,5 +510,86 @@ public class AuroraCommand extends EdenCommand
 			PrintUtils.sendMessage(sender, "Invalid constructor given to this mob.");
 		}
 		*/
+	}
+
+	private static final GuiItemStack CLOSE_BUTTON = SimpleComponentBuilder.build(Material.BARRIER, "§r§c§lClose", (e) -> e.getWhoClicked().closeInventory(), "§7§oClose this GUI");
+
+	@EdenCommandHandler(usage = "aur skills", description = "Opens the skills GUI.", argsCount = 1)
+	public void edencommand_skills(CommandSender sender, String commandLabel, String[] args)
+	{
+		if (!(sender instanceof Player))
+			return;
+
+		List<GuiComponent> data = new ArrayList<>() {{
+			for (AuroraSkill skill : AuroraSkill.values())
+				add(new RpgSkillInstance(skill, (Player) sender).generate());
+		}};
+
+		List<GuiComponent> topBar = new ArrayList<>();
+		int points = AuroraRpgStats.getSkillPoints((Player) sender);
+
+		topBar.add(CLOSE_BUTTON);
+		GuiItemStack pointsItem = SimpleComponentBuilder.build(Material.GOLD_NUGGET, "§r§6§l" + points + " skill " + PrintUtils.plural(points, "point", "points") + " available", (e) -> {}, "§7§oSkill points are earned by leveling", "§7§oup any stat.");
+
+		topBar.add(pointsItem);
+
+		new PagedSurfaceGui(27, "Skills", (HumanEntity) sender, 0, data, topBar, DefaultClickAction.CANCEL, InventoryAction.PICKUP_ALL, InventoryAction.PICKUP_HALF)
+			.display((HumanEntity) sender);
+	}
+
+	@EdenCommandHandler(usage = "aur addsp", description = "/!\\ Add a skill point.", argsCount = 1)
+	public void edencommand_addsp(CommandSender sender, String commandLabel, String[] args)
+	{
+		ModulePlayerData data = Eden.getPermissionsManager().getPlayerData((Player) sender).getModuleData("AuroraRPG");
+
+		data.incrementInt("skillpoints", 1);
+	}
+
+	@EdenCommandHandler(usage = "aur stats", description = "View your RPG stats.", argsCount = 1)
+	public void edencommand_stats(CommandSender sender, String commandLabel, String[] args)
+	{
+		if (!(sender instanceof Player))
+			return;
+
+		ModulePlayerData data = Eden.getPermissionsManager().getPlayerData((Player) sender).getModuleData("AuroraRPG");
+
+		PrintUtils.sendMessage(sender, "§e---§6=§c[ §bYour stats §c]§6=§e---");
+
+		for (RpgStat stat : RpgStat.values())
+			PrintUtils.sendMessage(sender, "§e" + stat.getFriendlyName() + "§7 lv. " + data.getInt(stat.name().toLowerCase()) + " | §aExp§7: " + data.getInt((stat.name() + "_EXP").toLowerCase()) + "/" + stat.getRequiredExpAtLevel(data.getInt(stat.name().toLowerCase())));
+	}
+
+	@EdenCommandHandler(usage = "aur track <stat>", description = "Tracks stat progression.", argsCount = 1)
+	public void edencommand_track(CommandSender sender, String commandBalen, String[] args)
+	{
+		if (!(sender instanceof Player))
+			return;
+
+		if (args.length == 1)
+		{
+			if (!AuroraRpgStats.hasBar((Player) sender))
+			{
+				PrintUtils.sendMessage(sender, "§cYou aren't tracking and stats right now.");
+				return;
+			}
+
+			PrintUtils.sendMessage(sender, "Turned off tracking for stat §e" + AuroraRpgStats.getBarData((Player) sender).getA().getFriendlyName() + "§7.");
+			AuroraRpgStats.removeBar((Player) sender);
+			return;
+		}
+
+		// Clean up the old bar
+		if (AuroraRpgStats.hasBar((Player) sender))
+			AuroraRpgStats.removeBar((Player) sender);
+
+		try {
+			RpgStat stat = RpgStat.valueOf(args[1].toUpperCase());
+
+			AuroraRpgStats.registerNewBar((Player) sender, stat);
+
+			PrintUtils.sendMessage(sender, "Now tracking stat \"§e" + stat.getFriendlyName() + "§7\".");
+		} catch (IllegalArgumentException e) {
+			PrintUtils.sendMessage(sender, "§cInvalid stat name \"" + args[1] + "\".");
+		}
 	}
 }

@@ -1,6 +1,6 @@
-package com.yukiemeralis.blogspot.aurora.pylons.item;
+package fish.yukiemeralis.aurora.pylons.item;
 
-import com.yukiemeralis.blogspot.aurora.pylons.PylonGui;
+import fish.yukiemeralis.aurora.pylons.PylonGui;
 
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;

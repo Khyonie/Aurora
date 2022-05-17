@@ -1,4 +1,4 @@
-package com.yukiemeralis.blogspot.aurora;
+package fish.yukiemeralis.aurora;
 
 import java.io.File;
 import java.lang.reflect.Type;
@@ -6,9 +6,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gson.reflect.TypeToken;
-import com.yukiemeralis.blogspot.aurora.pylons.Pylon;
-import com.yukiemeralis.blogspot.aurora.pylons.PylonNetwork;
-import com.yukiemeralis.blogspot.aurora.pylons.item.Pylporter;
+import fish.yukiemeralis.aurora.pylons.Pylon;
+import fish.yukiemeralis.aurora.pylons.PylonNetwork;
+import fish.yukiemeralis.aurora.pylons.item.Pylporter;
+import fish.yukiemeralis.aurora.rpg.RpgStatCompletions;
 
 import org.bukkit.Material;
 
@@ -29,7 +30,7 @@ import fish.yukiemeralis.eden.utils.PrintUtils;
     description = "Various fun/useful things for my SMPs.",
     maintainer = "Yuki_emeralis",
     modIcon = Material.SALMON,
-    version = "1.2.2",
+    version = "1.3.0",
     supportedApiVersions = {"v1_16_R3", "v1_17_R1", "v1_18_R1", "v1_18_R2"}
 )
 @LoadBefore(loadBefore = {"Surface2", "Checkpoint"})
@@ -53,12 +54,16 @@ public class AuroraModule extends EdenModule
         add("Aurora.aur.pylons.clearpassword");
         add("Aurora.aur.pylons.add");
         add("Aurora.aur.pylons.remove");
+        add("Aurora.aur.stats");
+        add("Aurora.aur.skills");
+        add("Aurora.aur.track");
     }};
 
     static List<String> ADMIN_COMMAND_PERMISSIONS = new ArrayList<>() {{
         add("Aurora.aur.item");
         add("Aurora.aur.item.name");
         add("Aurora.aur.item.lore");
+        add("Aurora.aur.addsp");
     }};
 	
     public AuroraModule()
@@ -66,6 +71,7 @@ public class AuroraModule extends EdenModule
         instance = this;
         try {
             CompletionsManager.registerCompletion("ALL_PYLONS", new ObjectMethodPair(PylonNetwork.getInstance(), "getAllPylonNames"), true);
+            CompletionsManager.registerCompletion("ALL_STATS", new ObjectMethodPair(new RpgStatCompletions(), "getRpgStats"), true);
         } catch (NoSuchMethodException e) {
             PrintUtils.printPrettyStacktrace(e);
         }

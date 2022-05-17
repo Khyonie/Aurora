@@ -1,9 +1,9 @@
-package com.yukiemeralis.blogspot.aurora.security;
+package fish.yukiemeralis.aurora.security;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.yukiemeralis.blogspot.aurora.AuroraModule;
+import fish.yukiemeralis.aurora.AuroraModule;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

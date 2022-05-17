@@ -1,7 +1,8 @@
-package com.yukiemeralis.blogspot.aurora;
+package fish.yukiemeralis.aurora;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -43,6 +44,8 @@ public class Treecapitator implements Listener
         add(Material.NETHER_WART_BLOCK);
     }};
 
+    private static final Random random = new Random();
+
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event)
     {
@@ -53,7 +56,7 @@ public class Treecapitator implements Listener
             return;
         
         if (!Eden.getPermissionsManager().getPlayerData(event.getPlayer()).getModuleData("Aurora").getValue("treecapEnabled", Boolean.class))
-        	return;
+            return;
 
         Player player = event.getPlayer();
         ItemStack held = player.getInventory().getItem(EquipmentSlot.HAND);
@@ -134,6 +137,9 @@ public class Treecapitator implements Listener
         if (meta.getDamage() == held.getType().getMaxDurability())
         {
             // Final break
+            if (random.nextInt(unbreakingLevel + 1) != 0) // Roll for break vs unbreaking level
+                return;
+
             event.getPlayer().getEquipment().setItem(EquipmentSlot.HAND, null);
             return;
         }

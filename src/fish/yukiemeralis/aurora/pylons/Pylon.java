@@ -1,4 +1,4 @@
-package com.yukiemeralis.blogspot.aurora.pylons;
+package fish.yukiemeralis.aurora.pylons;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.gson.annotations.Expose;
-import com.yukiemeralis.blogspot.aurora.pylons.item.Pylporter;
+import fish.yukiemeralis.aurora.pylons.item.Pylporter;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;

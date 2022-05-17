@@ -1,4 +1,4 @@
-package com.yukiemeralis.blogspot.aurora;
+package fish.yukiemeralis.aurora;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
