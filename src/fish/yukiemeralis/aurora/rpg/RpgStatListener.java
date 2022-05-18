@@ -9,13 +9,13 @@ import java.util.Random;
 import org.bukkit.Effect;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.AbstractArrow;
 import org.bukkit.entity.AbstractArrow.PickupStatus;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.ThrownPotion;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -23,7 +23,6 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityTargetEvent;
-import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.player.PlayerBedLeaveEvent;
@@ -36,16 +35,25 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import fish.yukiemeralis.aurora.rpg.enums.AuroraSkill;
 import fish.yukiemeralis.aurora.rpg.enums.RpgStat;
+import fish.yukiemeralis.aurora.rpg.skill.AbstractSkill;
 import fish.yukiemeralis.eden.Eden;
 import fish.yukiemeralis.eden.permissions.ModulePlayerData;
 import fish.yukiemeralis.eden.utils.PrintUtils;
+import fish.yukiemeralis.eden.utils.tuple.Tuple2;
 
-@SuppressWarnings("unused")
 public class RpgStatListener implements Listener
 {
     private static final Random random = new Random();
-
     private static final List<Material> ORES = ExperienceListener.getValidMaterials("ORE");
+
+    private static Map<Class<?>, List<AbstractSkill<? extends Event>>> REGISTERED_SKILLS = new HashMap<>();
+
+    public static void register(AbstractSkill<? extends Event> skill, Class<?> event)
+    {
+        if (!REGISTERED_SKILLS.containsKey(event))
+            REGISTERED_SKILLS.put(event, new ArrayList<>());
+        REGISTERED_SKILLS.get(event).add(skill);
+    }
 
     //
     // PvE events
@@ -178,17 +186,9 @@ public class RpgStatListener implements Listener
         if (!(event.getEntity() instanceof ThrownPotion))
             return;
 
-        ItemStack item = ((ThrownPotion) event.getEntity()).getItem();
 
-        if (AuroraSkill.ALCHEMIST.isUnlocked((Player) event.getEntity().getShooter()))
-            new BukkitRunnable() 
-            {
-                @Override
-                public void run() 
-                {
-                    ((Player) event.getEntity().getShooter()).getInventory().addItem(item);
-                }
-            }.runTaskLater(Eden.getInstance(), 5*20);
+        if (trySkill(event))
+            return;
     }
 
     @EventHandler
@@ -207,12 +207,14 @@ public class RpgStatListener implements Listener
         // Damage = damage * (1.0 + 0.level)
         event.setDamage(event.getDamage() * (1.0 + (data.getInt(RpgStat.ARCHERY.name().toLowerCase()) / 10d)));
 
-        if (AuroraSkill.TIPPED_ARROWS.isUnlocked((Player) ((Projectile) event.getDamager()).getShooter()))
+       for (AbstractSkill skill : REGISTERED_SKILLS.get(EntityTargetEvent.class))
         {
-            if (AuroraSkill.TIPPED_ARROWS.proc())
-            {
-                // TODO This
-            }
+            Tuple2<Boolean, Boolean> result = skill.tryActivate(event, (Player) ((Projectile) event.getDamager()).getShooter());
+
+            if (result.getA())
+                event.setCancelled(true);
+            if (result.getB())
+                return;
         }
     }
 
@@ -242,13 +244,14 @@ public class RpgStatListener implements Listener
         ModulePlayerData data = Eden.getPermissionsManager().getPlayerData((Player) event.getTarget()).getModuleData("AuroraRPG");
 
         // Skill
-        if (data.getValue(AuroraSkill.NINJA_TRAINING.name(), Boolean.class))
+        for (AbstractSkill skill : REGISTERED_SKILLS.get(EntityTargetEvent.class))
         {
-            if (random.nextInt(2) == 0) // 50% chance
-            {
-                blindMob((Mob) event.getEntity(), (Player) event.getTarget(), 40);
+            Tuple2<Boolean, Boolean> result = skill.tryActivate(event, (Player) event.getTarget());
+
+            if (result.getA())
+                event.setCancelled(true);
+            if (result.getB())
                 return;
-            }
         }
 
         // Stealth stat
@@ -423,7 +426,7 @@ public class RpgStatListener implements Listener
     // Helpers
     //
 
-    private void blindMob(Mob mob, Player player, long duration)
+    public static void blindMob(Mob mob, Player player, long duration)
     {
         synchronized (BLIND_MOB_TRACKER)
         {
