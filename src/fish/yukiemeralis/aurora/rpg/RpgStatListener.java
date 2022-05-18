@@ -8,13 +8,12 @@ import java.util.Random;
 
 import org.bukkit.Effect;
 import org.bukkit.Material;
-import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.AbstractArrow.PickupStatus;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.ThrownPotion;
+import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -25,6 +24,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.event.entity.EntityTargetEvent.TargetReason;
 import org.bukkit.event.player.PlayerBedLeaveEvent;
 import org.bukkit.event.player.PlayerItemMendEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
@@ -36,6 +36,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import fish.yukiemeralis.aurora.rpg.enums.AuroraSkill;
 import fish.yukiemeralis.aurora.rpg.enums.RpgStat;
 import fish.yukiemeralis.aurora.rpg.skill.AbstractSkill;
+import fish.yukiemeralis.aurora.rpg.skill.SkillRefundArrow;
 import fish.yukiemeralis.eden.Eden;
 import fish.yukiemeralis.eden.permissions.ModulePlayerData;
 import fish.yukiemeralis.eden.utils.PrintUtils;
@@ -65,6 +66,7 @@ public class RpgStatListener implements Listener
         // Entity hits player
         if (event.getEntity() instanceof Player)
         {
+            // This is already ported over to the SkillNinjaTraining skill, so here it remains
             if (AuroraSkill.NINJA_TRAINING.isUnlocked((Player) event.getEntity()))
             {
                 if (AuroraSkill.NINJA_TRAINING.proc())
@@ -81,7 +83,7 @@ public class RpgStatListener implements Listener
         if (event.getDamager() instanceof Player)
         {
             ModulePlayerData data = Eden.getPermissionsManager().getPlayerData((Player) event.getDamager()).getModuleData("AuroraRPG");
-            ItemStack held = ((Player) event.getDamager()).getInventory().getItemInMainHand();
+            ItemStack held = ((Player) event.getDamager()).getInventory().getItemInMainHand(); 
 
             // Apply damage modifiers
 
@@ -92,16 +94,6 @@ public class RpgStatListener implements Listener
 
             if (held.getType().equals(Material.AIR))
             {
-                if (AuroraSkill.DAZE_MOB.isUnlocked((Player) event.getDamager()))
-                    if (AuroraSkill.DAZE_MOB.proc())
-                    {
-                        if (event.getEntity() instanceof Mob)
-                        {
-                            blindMob((Mob) event.getEntity(), (Player) event.getEntity(), 100);
-                            PrintUtils.sendMessage(event.getDamager(), "Enemy dazed!");
-                        }
-                    }
-
                 event.setDamage(event.getDamage() * (1.0 + (data.getInt(RpgStat.BRAWLING.name().toLowerCase()) / 10d)));
                 return;
             }
@@ -114,15 +106,12 @@ public class RpgStatListener implements Listener
 
             if (ExperienceListener.SWORDS.contains(held.getType()))
             {
-                if (AuroraSkill.CLEAN_BLOW.isUnlocked((Player) event.getDamager()))
-                    if (AuroraSkill.CLEAN_BLOW.proc())
-                        event.setDamage(event.getDamage() * 2);
-
                 event.setDamage(event.getDamage() * (1.0 + (data.getInt(RpgStat.SWORDS.name().toLowerCase()) / 10d)));
                 return;
             }
 
-            return;
+            if (trySkill(event, (Player) event.getDamager(), AuroraSkill.DAZE_MOB, AuroraSkill.CLEAN_BLOW))
+                return;
         }
     }
 
@@ -130,8 +119,6 @@ public class RpgStatListener implements Listener
     //
     // Projectile events
     //
-
-    private static List<Arrow> REFUND_ARROW_TRACKER = new ArrayList<>();
 
     @EventHandler
     public void onShoot(ProjectileLaunchEvent event)
@@ -142,19 +129,8 @@ public class RpgStatListener implements Listener
         if (!(event.getEntity() instanceof Arrow))
             return;
 
-        ItemStack mainHeld = ((Player) event.getEntity().getShooter()).getInventory().getItemInMainHand();
-        ItemStack offHeld = ((Player) event.getEntity().getShooter()).getInventory().getItemInOffHand();
-
-        if (mainHeld != null)
-            if (mainHeld.containsEnchantment(Enchantment.ARROW_INFINITE))
-                return;
-        if (offHeld != null)
-            if (offHeld.containsEnchantment(Enchantment.ARROW_INFINITE))
-                return;
-
-        if (AuroraSkill.ARROW_REFUND.isUnlocked((Player) event.getEntity().getShooter()))
-            if (AuroraSkill.ARROW_REFUND.proc())
-                REFUND_ARROW_TRACKER.add((Arrow) event.getEntity());
+        if (trySkill(event, (Player) event.getEntity().getShooter(), AuroraSkill.ARROW_REFUND))
+            return;
     }
 
     @EventHandler
@@ -166,14 +142,9 @@ public class RpgStatListener implements Listener
         if (!(event.getEntity() instanceof Arrow))
             return;
 
-        if (REFUND_ARROW_TRACKER.contains(event.getEntity()))
+        if (SkillRefundArrow.isTrackedArrow((Arrow) event.getEntity()))
         {
-            PrintUtils.sendMessage((Player) event.getEntity().getShooter(), "The arrow returned to you!");
-
-            REFUND_ARROW_TRACKER.remove(event.getEntity());
-
-            ((Player) event.getEntity().getShooter()).getInventory().addItem(new ItemStack(Material.ARROW));
-            ((Arrow) event.getEntity()).setPickupStatus(PickupStatus.DISALLOWED);
+            SkillRefundArrow.refundArrow((Arrow) event.getEntity());
         }
     }
 
@@ -186,8 +157,7 @@ public class RpgStatListener implements Listener
         if (!(event.getEntity() instanceof ThrownPotion))
             return;
 
-
-        if (trySkill(event))
+        if (trySkill(event, (Player) event.getEntity().getShooter(), AuroraSkill.ALCHEMIST))
             return;
     }
 
@@ -205,17 +175,10 @@ public class RpgStatListener implements Listener
         ModulePlayerData data = Eden.getPermissionsManager().getPlayerData((Player) ((Projectile) event.getDamager()).getShooter()).getModuleData("AuroraRPG");
 
         // Damage = damage * (1.0 + 0.level)
-        event.setDamage(event.getDamage() * (1.0 + (data.getInt(RpgStat.ARCHERY.name().toLowerCase()) / 10d)));
+        event.setDamage(event.getDamage() * (1.0 + (data.getInt(RpgStat.ARCHERY.name().toLowerCase()) / 10d)) * (AuroraSkill.ARROW_REFUND.isUnlocked((Player) ((Projectile) event.getDamager()).getShooter()) ? 1.2 : 1.0));
 
-       for (AbstractSkill skill : REGISTERED_SKILLS.get(EntityTargetEvent.class))
-        {
-            Tuple2<Boolean, Boolean> result = skill.tryActivate(event, (Player) ((Projectile) event.getDamager()).getShooter());
-
-            if (result.getA())
-                event.setCancelled(true);
-            if (result.getB())
-                return;
-        }
+        if (trySkill(event, (Player) projectile.getShooter())) // Jester, probably
+            return;    
     }
 
 
@@ -244,15 +207,8 @@ public class RpgStatListener implements Listener
         ModulePlayerData data = Eden.getPermissionsManager().getPlayerData((Player) event.getTarget()).getModuleData("AuroraRPG");
 
         // Skill
-        for (AbstractSkill skill : REGISTERED_SKILLS.get(EntityTargetEvent.class))
-        {
-            Tuple2<Boolean, Boolean> result = skill.tryActivate(event, (Player) event.getTarget());
-
-            if (result.getA())
-                event.setCancelled(true);
-            if (result.getB())
-                return;
-        }
+        if (trySkill(event, (Player) event.getTarget(), AuroraSkill.NINJA_TRAINING))
+            return;
 
         // Stealth stat
         if (!((Player) event.getTarget()).isSneaking())
@@ -260,7 +216,7 @@ public class RpgStatListener implements Listener
 
         // p% = 2*level/100
         if (random.nextInt(100) <= 2 * data.getInt(RpgStat.STEALTH.name().toLowerCase()))
-            blindMob((Mob) event.getEntity(), (Player) event.getTarget(), 40);
+            blindMob((Mob) event.getEntity(), (Player) event.getTarget(), event.getReason(), 40);
     }
 
     
@@ -268,79 +224,17 @@ public class RpgStatListener implements Listener
     // Death events
     //
 
-    private static List<Player> SWANSONG_PLAYERS = new ArrayList<>();
-    private static List<Player> SWANSONG_COOLDOWN = new ArrayList<>();
-
     @EventHandler(priority = EventPriority.HIGH)
     public void onDeathEvent(EntityDamageEvent event)
     {
         if (!(event.getEntity() instanceof Player))
             return;
 
-        if (((Player) event.getEntity()).getHealth() - event.getDamage() <= 0.0)
+        if (!(((Player) event.getEntity()).getHealth() - event.getDamage() <= 0.0))
         {
-            if (!AuroraSkill.SWANSONG.isUnlocked((Player) event.getEntity()))
+            if (trySkill(event, (Player) event.getEntity(), AuroraSkill.SWANSONG))
                 return;
-
-            if (SWANSONG_PLAYERS.contains((Player) event.getEntity()))
-                return;
-
-            if (SWANSONG_COOLDOWN.contains((Player) event.getEntity()))
-                return;
-
-            event.setCancelled(true);
-            onDeath((Player) event.getEntity());
         }
-    }
-
-    public void onDeath(Player player)
-    { 
-        PrintUtils.sendMessage(player, "§cSwan song activated! You have 10 seconds before death.");
-        
-        synchronized (SWANSONG_PLAYERS)
-        {
-            SWANSONG_PLAYERS.add(player);
-        }
-
-        synchronized (SWANSONG_COOLDOWN)
-        {
-            SWANSONG_COOLDOWN.add(player);
-        }
-        
-        player.setHealth(1.0);
-        player.setInvulnerable(true);
-
-        player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 199, 1));
-        player.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 199, 4));
-        player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 199, 0));
-
-        new BukkitRunnable() 
-        {
-            @Override
-            public void run() 
-            {
-                player.setInvulnerable(false);
-                player.setHealth(0.0);
-
-                synchronized (SWANSONG_PLAYERS)
-                {
-                    SWANSONG_PLAYERS.remove(player);
-                }
-            }
-        }.runTaskLater(Eden.getInstance(), 10*20);
-
-        new BukkitRunnable() 
-        {
-            @Override
-            public void run() 
-            {
-                synchronized (SWANSONG_COOLDOWN)
-                {
-                    SWANSONG_COOLDOWN.remove(player);
-                    PrintUtils.sendMessage(player, "Swansong has finished cooldown.");
-                }
-            }
-        }.runTaskLater(Eden.getInstance(), 300*20);
     }
 
     @EventHandler
@@ -426,8 +320,39 @@ public class RpgStatListener implements Listener
     // Helpers
     //
 
-    public static void blindMob(Mob mob, Player player, long duration)
+    private static boolean trySkill(Event event, Player target, AuroraSkill... applicableSkills)
     {
+        for (AbstractSkill<?> skill : REGISTERED_SKILLS.get(event.getClass()))
+        {
+            boolean isApplicable = false;
+            a: for (AuroraSkill s : applicableSkills)
+                if (skill.getEnum().equals(s))
+                {
+                    isApplicable = true;
+                    break a;
+                }
+
+            if (!isApplicable)
+                continue;
+
+            Tuple2<Boolean, Boolean> data = skill.tryActivate(event, target);
+
+            if (data.getA())
+                if (event instanceof Cancellable)
+                    ((Cancellable) event).setCancelled(true);
+
+            if (data.getB())
+                return true;
+        }
+
+        return false;
+    }
+
+    public static void blindMob(Mob mob, Player player, TargetReason reason, long duration)
+    {
+        if (reason.equals(TargetReason.TEMPT))
+            return;
+
         synchronized (BLIND_MOB_TRACKER)
         {
             BLIND_MOB_TRACKER.put(mob, player);

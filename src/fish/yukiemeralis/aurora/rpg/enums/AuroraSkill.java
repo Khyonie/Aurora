@@ -26,6 +26,7 @@ public enum AuroraSkill
     CROUCHJUMP    (100, "§cCrouch jump",       "Crouching for a short time doubles", "your next jump's height for 2 seconds.")
     // Silk spawners
     // Boat railgun
+    // Headshots
     ;
 
     private final int proc_chance;

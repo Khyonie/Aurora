@@ -37,4 +37,9 @@ public abstract class AbstractSkill<E extends Event>
     }
 
     protected abstract Tuple2<Boolean, Boolean> onActivate(E event);    
+
+    public AuroraSkill getEnum()
+    {
+        return this.skill;
+    }
 }
