@@ -1,15 +1,14 @@
-package fish.yukiemeralis.aurora.rpg;
+package fish.yukiemeralis.aurora.rpg.lookups;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 import org.bukkit.Material;
 
-public class RpgBlockTypes 
+public class RpgBlockLookups 
 {
-    private static final Random random = new Random();
-
     private static final Material[] STONE_ARRAY = new Material[] {
         Material.STONE,
         Material.GRANITE,
@@ -55,43 +54,42 @@ public class RpgBlockTypes
         Material.CLAY
     };
 
-    private static final Material[] RARITIES = new Material[] {
-        Material.BONE,
-        Material.BONE_MEAL,
-        Material.BONE_BLOCK,
-        Material.POTATO,
-        Material.CARROT,
-        Material.BEETROOT,
-        Material.SKELETON_SKULL,
-        Material.WITHER_SKELETON_SKULL,
-        Material.WITHER_ROSE,
-        Material.GOLD_NUGGET,
-        Material.GOLD_INGOT,
-        Material.IRON_NUGGET,
-        Material.IRON_INGOT,
-        Material.DIAMOND,
-        Material.EMERALD
-    };
-
-    static final Map<Material, Object> STONE_LOOKUPS = new HashMap<>() {{
-       for (Material m : STONE_ARRAY) 
-           put(m, null);
-    }};
-
-    static final Map<Material, Object> DIRT_LOOKUPS = new HashMap<>() {{
-        for (Material m : DIRT_ARRAY)
-            put(m, null);
-    }};
-
-    static final Map<Material, Material> CROPS_LOOKUPS = new HashMap<>() {{
+    private static final Map<Material, Material> CROPS_LOOKUPS = new HashMap<>() {{
         put(Material.WHEAT, Material.WHEAT);
         put(Material.CARROTS, Material.CARROT);
         put(Material.POTATOES, Material.POTATO);
         put(Material.BEETROOTS, Material.BEETROOT);
     }};
 
-    public static Material getRandomRarity()
+    private static Map<String, List<Material>> data = LookupFactory.generateValidMaterials("ORE");
+
+    static {
+        data.put("STONE", Arrays.asList(STONE_ARRAY));
+        data.put("DIRT", Arrays.asList(DIRT_ARRAY));
+    }
+
+    public static Map<Material, Material> getCropLookups()
     {
-        return RARITIES[random.nextInt(RARITIES.length)];
+        return CROPS_LOOKUPS;
+    }
+    
+    public static boolean isOre(Material mat)
+    {
+        return data.get("ORE").contains(mat);
+    }
+
+    public static boolean isStone(Material mat)
+    {
+        return data.get("STONE").contains(mat);
+    }
+
+    public static boolean isDirt(Material mat)
+    {
+        return data.get("DIRT").contains(mat);
+    }
+
+    public static boolean isCrop(Material mat)
+    {
+        return CROPS_LOOKUPS.containsKey(mat);
     }
 }

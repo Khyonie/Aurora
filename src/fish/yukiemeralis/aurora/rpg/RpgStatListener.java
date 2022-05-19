@@ -35,6 +35,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import fish.yukiemeralis.aurora.rpg.enums.AuroraSkill;
 import fish.yukiemeralis.aurora.rpg.enums.RpgStat;
+import fish.yukiemeralis.aurora.rpg.lookups.RpgItemLookups;
 import fish.yukiemeralis.aurora.rpg.skill.AbstractSkill;
 import fish.yukiemeralis.aurora.rpg.skill.SkillRefundArrow;
 import fish.yukiemeralis.eden.Eden;
@@ -45,8 +46,6 @@ import fish.yukiemeralis.eden.utils.tuple.Tuple2;
 public class RpgStatListener implements Listener
 {
     private static final Random random = new Random();
-    private static final List<Material> ORES = ExperienceListener.getValidMaterials("ORE");
-
     private static Map<Class<?>, List<AbstractSkill<? extends Event>>> REGISTERED_SKILLS = new HashMap<>();
 
     public static void register(AbstractSkill<? extends Event> skill, Class<?> event)
@@ -98,13 +97,13 @@ public class RpgStatListener implements Listener
                 return;
             }
 
-            if (ExperienceListener.AXES.contains(held.getType()))
+            if (RpgItemLookups.isOfType("AXES", held.getType()))
             {
-                event.setDamage(event.getDamage() * (1.0 + (data.getInt(RpgStat.BRAWLING.name().toLowerCase()) / 10d)));
+                event.setDamage(event.getDamage() * (1.0 + (data.getInt(RpgStat.AXES.name().toLowerCase()) / 10d)));
                 return;
             }
 
-            if (ExperienceListener.SWORDS.contains(held.getType()))
+            if (RpgItemLookups.isOfType("SWORDS", held.getType()))
             {
                 event.setDamage(event.getDamage() * (1.0 + (data.getInt(RpgStat.SWORDS.name().toLowerCase()) / 10d)));
                 return;
@@ -269,36 +268,8 @@ public class RpgStatListener implements Listener
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event)
     {
-        if (ORES.contains(event.getBlock().getType()))
-        {
-            if (AuroraSkill.QUADRUPLE_ORES.isUnlocked(event.getPlayer()))
-                if (AuroraSkill.QUADRUPLE_ORES.proc())
-                    for (int i = 0; i < 3; i++)
-                        for (ItemStack item : event.getBlock().getDrops())
-                            event.getBlock().getWorld().dropItemNaturally(event.getBlock().getLocation(), item);
+        if (trySkill(event, event.getPlayer(), AuroraSkill.QUADRUPLE_ORES, AuroraSkill.ARCHAEOLOGIST, AuroraSkill.EMERALD_HILL, AuroraSkill.FARMHAND))
             return;
-        }
-
-        if (RpgBlockTypes.DIRT_LOOKUPS.containsKey(event.getBlock().getType()))
-        {
-            if (AuroraSkill.ARCHAEOLOGIST.isUnlocked(event.getPlayer()))
-                if (AuroraSkill.ARCHAEOLOGIST.proc())
-                    event.getPlayer().getInventory().addItem(new ItemStack(RpgBlockTypes.getRandomRarity()));
-            return;
-        }
-
-        if (RpgBlockTypes.CROPS_LOOKUPS.containsKey(event.getBlock().getType()))
-        {
-            if (AuroraSkill.EMERALD_HILL.isUnlocked(event.getPlayer()))
-                if (AuroraSkill.EMERALD_HILL.proc())
-                    event.getBlock().getWorld().dropItemNaturally(event.getBlock().getLocation(), new ItemStack(Material.EMERALD, 1 + random.nextInt(3)));
-
-            if (AuroraSkill.FARMHAND.isUnlocked(event.getPlayer()))
-                if (AuroraSkill.FARMHAND.proc())
-                    event.getBlock().getWorld().dropItemNaturally(event.getBlock().getLocation(), new ItemStack(RpgBlockTypes.CROPS_LOOKUPS.get(event.getBlock().getType()), 3));
-
-            return;
-        }
     }
 
 

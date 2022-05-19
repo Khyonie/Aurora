@@ -1,8 +1,5 @@
 package fish.yukiemeralis.aurora.rpg;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.bukkit.Material;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Player;
@@ -16,15 +13,11 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 
 import fish.yukiemeralis.aurora.rpg.enums.RpgStat;
+import fish.yukiemeralis.aurora.rpg.lookups.RpgBlockLookups;
+import fish.yukiemeralis.aurora.rpg.lookups.RpgItemLookups;
 
 public class ExperienceListener implements Listener
-{
-    static List<Material> 
-        SWORDS = getValidMaterials("SWORD"),
-        AXES = getValidMaterials("AXE"),
-        PICKAXES = getValidMaterials("PICKAXE"),
-        SHOVELS = getValidMaterials("SHOVEL");
-
+{ 
     @EventHandler
     public void onEntityHit(EntityDamageByEntityEvent event)
     {
@@ -45,13 +38,13 @@ public class ExperienceListener implements Listener
             return;
         }
 
-        if (SWORDS.contains(held.getType()))
+        if (RpgItemLookups.isOfType("SWORD", held.getType()))
         {
             RpgStat.SWORDS.increaseExp((Player) event.getDamager());
             return;
         }
 
-        if (AXES.contains(held.getType()))
+        if (RpgItemLookups.isOfType("AXE", held.getType()))
         {
             RpgStat.AXES.increaseExp((Player) event.getDamager());
             return;
@@ -66,13 +59,13 @@ public class ExperienceListener implements Listener
         if (held == null)
             return;
 
-        if (PICKAXES.contains(held.getType()) && RpgBlockTypes.STONE_LOOKUPS.containsKey(event.getBlock().getType()))
+        if (RpgItemLookups.isOfType("PICKAXE", held.getType()) && RpgBlockLookups.isStone(event.getBlock().getType()))
         {
             RpgStat.MINING.increaseExp(event.getPlayer());
             return;
         }
 
-        if (SHOVELS.contains(held.getType()) && RpgBlockTypes.DIRT_LOOKUPS.containsKey(event.getBlock().getType()))
+        if (RpgItemLookups.isOfType("SHOVEL", held.getType()) && RpgBlockLookups.isDirt(event.getBlock().getType()))
         {
             RpgStat.DIGGING.increaseExp(event.getPlayer());
             return;
@@ -116,21 +109,5 @@ public class ExperienceListener implements Listener
     public void onLeave(PlayerQuitEvent event)
     {
         AuroraRpgStats.removeBar(event.getPlayer());
-    }
-
-    static List<Material> getValidMaterials(String name)
-    {
-        List<Material> data = new ArrayList<>();
-
-        for (Material m : Material.values())
-        {
-            if (m.name().contains("LEGACY"))
-                continue;
-
-            if (m.name().contains(name))
-                data.add(m);
-        }
-
-        return data;
     }
 }
