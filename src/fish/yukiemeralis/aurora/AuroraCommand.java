@@ -1,15 +1,26 @@
 package fish.yukiemeralis.aurora;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Arrow;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.HumanEntity;
+import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+import org.bukkit.event.entity.EntityTargetEvent;
+import org.bukkit.event.entity.EntityTargetEvent.TargetReason;
+import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.inventory.InventoryAction;
+import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -39,7 +50,7 @@ public class AuroraCommand extends EdenCommand
 	{
 		super("aur", parent_module);
 
-		addBranch("trees", "pylons", "item", "mob", "skills", "addsp", "stats", "track");
+		addBranch("trees", "pylons", "item", "mob", "skills", "addsp", "stats", "track", "test");
 
 		getBranch("item").addBranch("name", "lore");
 
@@ -52,6 +63,7 @@ public class AuroraCommand extends EdenCommand
 		getBranch("pylons").getBranch("remove").addBranch("<ONLINE_PLAYERS>");
 
 		getBranch("track").addBranch("<ALL_STATS>");
+		getBranch("test").addBranch("<INTEGER>");
 	}
 
 	@EdenCommandHandler(argsCount = 1, description = "Toggles treecapitator.", usage = "aur trees")
@@ -560,7 +572,7 @@ public class AuroraCommand extends EdenCommand
 	}
 
 	@EdenCommandHandler(usage = "aur track <stat>", description = "Tracks stat progression.", argsCount = 1)
-	public void edencommand_track(CommandSender sender, String commandBalen, String[] args)
+	public void edencommand_track(CommandSender sender, String commandLabel, String[] args)
 	{
 		if (!(sender instanceof Player))
 			return;
@@ -591,5 +603,28 @@ public class AuroraCommand extends EdenCommand
 		} catch (IllegalArgumentException e) {
 			PrintUtils.sendMessage(sender, "§cInvalid stat name \"" + args[1] + "\".");
 		}
+	}
+
+	@EdenCommandHandler(usage = "aur test <number>", description = "Runs a suite of tests.", argsCount = 2)
+	public void edencommand_test(CommandSender sender, String commandLabel, String[] args)
+	{
+		try { Integer.parseInt(args[1]); } catch (NumberFormatException e) { return; }
+
+		PrintUtils.sendMessage(sender, "Beginning test with " + args[1] + "iterations. Note that because of the luck-based nature of skills, run-to-run variance may exist. Increasing the number of iterations will decrease variance at the cost of time.");
+
+		Player player = (Player) sender;
+		Mob target = (Mob) player.getWorld().spawnEntity(player.getTargetBlockExact(10).getLocation(), EntityType.PIG);
+
+		Event[] testEvents = new Event[] {
+			new EntityDamageByEntityEvent(target, player, DamageCause.CUSTOM, new HashMap<>(), new HashMap<>()),
+			new EntityDamageByEntityEvent(player, target, DamageCause.CUSTOM, new HashMap<>(), new HashMap<>()),
+			new ProjectileLaunchEvent(player.launchProjectile(Arrow.class)),
+			new EntityTargetEvent(target, player, TargetReason.CUSTOM),
+			new PlayerRespawnEvent(player, player.getLocation(), true, false),
+		};
+
+		for (int i = 0; i < Integer.parseInt(args[1]); i++)
+			for (Event e : testEvents)
+				Eden.getInstance().getServer().getPluginManager().callEvent(e);
 	}
 }
