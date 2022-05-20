@@ -12,6 +12,7 @@ import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.inventory.ItemStack;
 
 import fish.yukiemeralis.aurora.rpg.enums.AuroraSkill;
+import fish.yukiemeralis.eden.utils.PrintUtils;
 import fish.yukiemeralis.eden.utils.tuple.Tuple2;
 
 public class SkillRefundArrow extends AbstractSkill<ProjectileLaunchEvent>
@@ -53,6 +54,8 @@ public class SkillRefundArrow extends AbstractSkill<ProjectileLaunchEvent>
     public static void refundArrow(Arrow arrow)
     {
         REFUND_TRACKER.get(arrow).getInventory().addItem(new ItemStack(Material.ARROW));
+
+        PrintUtils.sendMessage((Player) arrow.getShooter(), "The arrow returned to you!");
         synchronized (REFUND_TRACKER)
         {
             REFUND_TRACKER.remove(arrow);

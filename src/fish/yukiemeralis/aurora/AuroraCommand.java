@@ -556,7 +556,7 @@ public class AuroraCommand extends EdenCommand
 		PrintUtils.sendMessage(sender, "§e---§6=§c[ §bYour stats §c]§6=§e---");
 
 		for (RpgStat stat : RpgStat.values())
-			PrintUtils.sendMessage(sender, "§e" + stat.getFriendlyName() + "§7 lv. " + data.getInt(stat.name().toLowerCase()) + " | §aExp§7: " + data.getInt((stat.name() + "_EXP").toLowerCase()) + "/" + stat.getRequiredExpAtLevel(data.getInt(stat.name().toLowerCase())));
+			PrintUtils.sendMessage(sender, "§e" + stat.getFriendlyName() + "§7 lv. " + data.getInt(stat.dataName()) + " | §aExp§7: " + data.getInt(stat.expName()) + "/" + stat.getRequiredExpAtLevel(data.getInt(stat.dataName())));
 	}
 
 	@EdenCommandHandler(usage = "aur track <stat>", description = "Tracks stat progression.", argsCount = 1)

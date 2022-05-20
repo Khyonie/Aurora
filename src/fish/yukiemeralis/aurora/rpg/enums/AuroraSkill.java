@@ -9,7 +9,7 @@ import fish.yukiemeralis.eden.Eden;
 public enum AuroraSkill 
 {
     NINJA_TRAINING(20,  "Ninja training",      "Low chance to ignore incoming", "damage."), // Done
-    ARROW_REFUND  (33,  "Loyal arrows",        "High chance to return fired arrows."), // Done
+    ARROW_REFUND  (33,  "Loyal arrows",        "High chance to return fired arrows.", "Increases arrow damage by 20%."), // Done
     QUADRUPLE_ORES(5,   "Pickaxe technique",   "Small chance to quadruple dropped", "materials when breaking ore."),
     ARCHAEOLOGIST (1,   "Archaeologist",       "Tiny chance to obtain rarities when", "digging dirt."),
     CLEAN_BLOW    (10,  "Clean blows",         "Small chance to deal double damage", "when attacking with swords."), // Done
@@ -42,6 +42,11 @@ public enum AuroraSkill
         this.name = name;
     }
 
+    public String dataName()
+    {
+        return this.name().toLowerCase();
+    }
+
     public boolean proc()
     {
         return random.nextInt(100) <= proc_chance;
@@ -49,14 +54,14 @@ public enum AuroraSkill
 
     public boolean isUnlocked(Player player)
     {
-        return Eden.getPermissionsManager().getPlayerData(player).getModuleData("AuroraRPG").getValue(this.name(), Boolean.class);
+        return Eden.getPermissionsManager().getPlayerData(player).getModuleData("AuroraRPG").getValue(this.dataName(), Boolean.class);
     }
 
     public boolean unlockForPlayer(Player player)
     {
         if (isUnlocked(player))
             return false;
-        Eden.getPermissionsManager().getPlayerData(player).getModuleData("AuroraRPG").setValue(this.name(), true);
+        Eden.getPermissionsManager().getPlayerData(player).getModuleData("AuroraRPG").setValue(this.dataName(), true);
         Eden.getPermissionsManager().getPlayerData(player).getModuleData("AuroraRPG").incrementInt("skillpoints", -1);
         return true;
     }

@@ -5,6 +5,7 @@ import org.bukkit.event.Event;
 
 import fish.yukiemeralis.aurora.rpg.RpgStatListener;
 import fish.yukiemeralis.aurora.rpg.enums.AuroraSkill;
+import fish.yukiemeralis.eden.utils.PrintUtils;
 import fish.yukiemeralis.eden.utils.tuple.Tuple2;
 
 public abstract class AbstractSkill<E extends Event>
@@ -18,17 +19,21 @@ public abstract class AbstractSkill<E extends Event>
         new SkillArchaeologist();
         new SkillCleanBlows();
         new SkillDazeMob();
+        new SkillDoubleMend();
         new SkillEmeraldHill();
         new SkillFarmhand();
         new SkillNinjaTraining();
         new SkillQuadrupleOres();
         new SkillRefundArrow();
-        new SkillSwanSong();   
+        new SkillSwanSong();
+        new SkillWakingRush();
+        new SkillWellRested();   
     }
 
     protected AbstractSkill(AuroraSkill skill, Class<E> handler)
     {
         this.skill = skill;
+        this.handler = handler;
         RpgStatListener.register(this, handler);
     }
 
@@ -41,8 +46,12 @@ public abstract class AbstractSkill<E extends Event>
      */
     public Tuple2<Boolean, Boolean> tryActivate(Event event, Player skillOwner)
     {
+        PrintUtils.log("Is unlocked? " + skill.isUnlocked(skillOwner));
         if (!skill.isUnlocked(skillOwner))
             return new Tuple2<>(false, false);
+        
+        boolean proc = skill.proc();    
+        PrintUtils.log("Proc'ed? " + (proc ? "§a" : "") + proc);
         if (!skill.proc())
             return new Tuple2<>(false, false);
         if (!handler.isAssignableFrom(event.getClass()))

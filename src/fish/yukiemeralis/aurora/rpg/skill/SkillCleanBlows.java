@@ -1,5 +1,8 @@
 package fish.yukiemeralis.aurora.rpg.skill;
 
+import org.bukkit.Sound;
+import org.bukkit.SoundCategory;
+import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
 import fish.yukiemeralis.aurora.rpg.enums.AuroraSkill;
@@ -16,7 +19,7 @@ public class SkillCleanBlows extends AbstractSkill<EntityDamageByEntityEvent>
     protected Tuple2<Boolean, Boolean> onActivate(EntityDamageByEntityEvent event) 
     {
         event.setDamage(event.getDamage() * 2);
-        return new Tuple2<>(true, true);
+        ((Player) event.getDamager()).playSound(event.getDamager().getLocation(), Sound.BLOCK_GLASS_BREAK, SoundCategory.PLAYERS, 0.5f, 1.0f);
+        return new Tuple2<>(false, false);
     }
-    
 }

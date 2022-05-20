@@ -3,6 +3,8 @@ package fish.yukiemeralis.aurora.rpg.skill;
 import java.util.Random;
 
 import org.bukkit.Material;
+import org.bukkit.Sound;
+import org.bukkit.SoundCategory;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -25,6 +27,7 @@ public class SkillEmeraldHill extends AbstractSkill<BlockBreakEvent>
         if (!RpgBlockLookups.isCrop(event.getBlock().getType()))
             return new Tuple2<>(false, false);
         
+        event.getPlayer().playSound(event.getPlayer().getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.BLOCKS, 0.5f, 1.0f);
         event.getBlock().getWorld().dropItemNaturally(event.getBlock().getLocation(), new ItemStack(Material.EMERALD, 1 + random.nextInt(3)));
 
         return new Tuple2<>(false, false);

@@ -1,5 +1,7 @@
 package fish.yukiemeralis.aurora.rpg.skill;
 
+import org.bukkit.Sound;
+import org.bukkit.SoundCategory;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -20,6 +22,7 @@ public class SkillFarmhand extends AbstractSkill<BlockBreakEvent>
         if (!RpgBlockLookups.isCrop(event.getBlock().getType()))
             return new Tuple2<>(false, false);
 
+        event.getPlayer().playSound(event.getPlayer().getLocation(), Sound.BLOCK_AMETHYST_BLOCK_STEP, SoundCategory.BLOCKS, 0.5f, 1.0f);
         event.getBlock().getWorld().dropItemNaturally(event.getBlock().getLocation(), new ItemStack(RpgBlockLookups.getCropLookups().get(event.getBlock().getType()), 3));
 
         return new Tuple2<>(false, false);

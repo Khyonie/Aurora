@@ -93,20 +93,17 @@ public class RpgStatListener implements Listener
 
             if (held.getType().equals(Material.AIR))
             {
-                event.setDamage(event.getDamage() * (1.0 + (data.getInt(RpgStat.BRAWLING.name().toLowerCase()) / 10d)));
-                return;
+                event.setDamage(event.getDamage() * (1.0 + (data.getInt(RpgStat.BRAWLING.dataName()) / 10d)));
             }
 
-            if (RpgItemLookups.isOfType("AXES", held.getType()))
+            if (RpgItemLookups.isOfType("AXE", held.getType()))
             {
-                event.setDamage(event.getDamage() * (1.0 + (data.getInt(RpgStat.AXES.name().toLowerCase()) / 10d)));
-                return;
+                event.setDamage(event.getDamage() * (1.0 + (data.getInt(RpgStat.AXES.dataName()) / 10d)));
             }
 
-            if (RpgItemLookups.isOfType("SWORDS", held.getType()))
+            if (RpgItemLookups.isOfType("SWORD", held.getType()))
             {
-                event.setDamage(event.getDamage() * (1.0 + (data.getInt(RpgStat.SWORDS.name().toLowerCase()) / 10d)));
-                return;
+                event.setDamage(event.getDamage() * (1.0 + (data.getInt(RpgStat.SWORDS.dataName()) / 10d)));
             }
 
             if (trySkill(event, (Player) event.getDamager(), AuroraSkill.DAZE_MOB, AuroraSkill.CLEAN_BLOW))
@@ -174,7 +171,7 @@ public class RpgStatListener implements Listener
         ModulePlayerData data = Eden.getPermissionsManager().getPlayerData((Player) ((Projectile) event.getDamager()).getShooter()).getModuleData("AuroraRPG");
 
         // Damage = damage * (1.0 + 0.level)
-        event.setDamage(event.getDamage() * (1.0 + (data.getInt(RpgStat.ARCHERY.name().toLowerCase()) / 10d)) * (AuroraSkill.ARROW_REFUND.isUnlocked((Player) ((Projectile) event.getDamager()).getShooter()) ? 1.2 : 1.0));
+        event.setDamage(event.getDamage() * (1.0 + (data.getInt(RpgStat.ARCHERY.dataName()) / 10d)) * (AuroraSkill.ARROW_REFUND.isUnlocked((Player) ((Projectile) event.getDamager()).getShooter()) ? 1.2 : 1.0));
 
         if (trySkill(event, (Player) projectile.getShooter())) // Jester, probably
             return;    
@@ -214,7 +211,7 @@ public class RpgStatListener implements Listener
             return;
 
         // p% = 2*level/100
-        if (random.nextInt(100) <= 2 * data.getInt(RpgStat.STEALTH.name().toLowerCase()))
+        if (random.nextInt(100) <= 2 * data.getInt(RpgStat.STEALTH.dataName()))
             blindMob((Mob) event.getEntity(), (Player) event.getTarget(), event.getReason(), 40);
     }
 
@@ -239,13 +236,8 @@ public class RpgStatListener implements Listener
     @EventHandler
     public void onRespawn(PlayerRespawnEvent event)
     {
-        if (!AuroraSkill.WAKING_RUSH.isUnlocked(event.getPlayer()))
+        if (trySkill(event, event.getPlayer(), AuroraSkill.WAKING_RUSH))
             return;
-
-        event.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 300*20, 0));
-        event.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 300*20, 0));
-        event.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 300*20, 0));
-        PrintUtils.sendMessage(event.getPlayer(), "You feel invigorated.");
     }
 
     @EventHandler
@@ -280,11 +272,8 @@ public class RpgStatListener implements Listener
     @EventHandler
     public void onMend(PlayerItemMendEvent event)
     {
-        if (!AuroraSkill.DOUBLE_MEND.isUnlocked(event.getPlayer()))
+        if (trySkill(event, event.getPlayer(), AuroraSkill.DOUBLE_MEND))
             return;
-
-        if (AuroraSkill.DOUBLE_MEND.proc())
-            event.setRepairAmount(event.getRepairAmount() * 2);
     }
 
     //
@@ -293,8 +282,13 @@ public class RpgStatListener implements Listener
 
     private static boolean trySkill(Event event, Player target, AuroraSkill... applicableSkills)
     {
+        if (!REGISTERED_SKILLS.containsKey(event.getClass()))
+            return false;
+
         for (AbstractSkill<?> skill : REGISTERED_SKILLS.get(event.getClass()))
         {
+            PrintUtils.log("Trying for skill " + skill.getEnum().getName() + " as event " + event.getClass().getSimpleName());
+
             boolean isApplicable = false;
             a: for (AuroraSkill s : applicableSkills)
                 if (skill.getEnum().equals(s))
@@ -303,9 +297,12 @@ public class RpgStatListener implements Listener
                     break a;
                 }
 
+            PrintUtils.log("Is applicable? " + isApplicable);
+
             if (!isApplicable)
                 continue;
 
+            PrintUtils.log("Trying for activation");
             Tuple2<Boolean, Boolean> data = skill.tryActivate(event, target);
 
             if (data.getA())

@@ -7,6 +7,7 @@ import org.bukkit.inventory.ItemStack;
 import fish.yukiemeralis.aurora.rpg.enums.AuroraSkill;
 import fish.yukiemeralis.aurora.rpg.lookups.RpgBlockLookups;
 import fish.yukiemeralis.aurora.rpg.lookups.RpgItemLookups;
+import fish.yukiemeralis.eden.utils.PrintUtils;
 import fish.yukiemeralis.eden.utils.tuple.Tuple2;
 
 public class SkillQuadrupleOres extends AbstractSkill<BlockBreakEvent> 
@@ -31,6 +32,7 @@ public class SkillQuadrupleOres extends AbstractSkill<BlockBreakEvent>
         if (held.containsEnchantment(Enchantment.SILK_TOUCH))
             return new Tuple2<>(false, false);
 
+        PrintUtils.sendMessage(event.getPlayer(), "4x the resources were dropped!");
         for (int i = 0; i < 3; i++)
             for (ItemStack item : event.getBlock().getDrops())
                 event.getBlock().getWorld().dropItemNaturally(event.getBlock().getLocation(), item);

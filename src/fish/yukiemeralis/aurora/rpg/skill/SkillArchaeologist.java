@@ -7,11 +7,11 @@ import org.bukkit.inventory.ItemStack;
 import fish.yukiemeralis.aurora.rpg.enums.AuroraSkill;
 import fish.yukiemeralis.aurora.rpg.lookups.RpgBlockLookups;
 import fish.yukiemeralis.aurora.rpg.lookups.RpgItemLookups;
+import fish.yukiemeralis.eden.utils.PrintUtils;
 import fish.yukiemeralis.eden.utils.tuple.Tuple2;
 
 public class SkillArchaeologist extends AbstractSkill<BlockBreakEvent>
 {
-
     protected SkillArchaeologist() 
     {
         super(AuroraSkill.ARCHAEOLOGIST, BlockBreakEvent.class);
@@ -31,6 +31,7 @@ public class SkillArchaeologist extends AbstractSkill<BlockBreakEvent>
         if (held.containsEnchantment(Enchantment.SILK_TOUCH))
             return new Tuple2<>(false, false);
 
+        PrintUtils.sendMessage(event.getPlayer(), "You excavated a rarity!");
         event.getBlock().getWorld().dropItemNaturally(event.getBlock().getLocation(), new ItemStack(RpgItemLookups.randomRarity(), 1));
 
         return new Tuple2<>(false, true);

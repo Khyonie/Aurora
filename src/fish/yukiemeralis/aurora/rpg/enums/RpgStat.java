@@ -41,27 +41,37 @@ public enum RpgStat
         return this.friendlyName;
     }
 
+    public String dataName()
+    {
+        return this.name().toLowerCase();
+    }
+
+    public String expName()
+    {
+        return this.dataName() + "_exp";
+    }
+
     public void increaseExp(Player target)
     {
         ModulePlayerData data = Eden.getPermissionsManager().getPlayerData(target).getModuleData("AuroraRPG");
         
-        int progress = data.incrementInt((this.name() + "_EXP").toLowerCase(), 1);
+        int progress = data.incrementInt(this.expName(), 1);
 
         if (AuroraRpgStats.hasBar(target, this))
-            AuroraRpgStats.getBarData(target).getB().setProgress(progress / (double) getRequiredExpAtLevel(data.getInt(this.name().toLowerCase())));
+            AuroraRpgStats.getBarData(target).getB().setProgress(progress / (double) getRequiredExpAtLevel(data.getInt(this.dataName())));
 
         if (canLevelUp(target, data))
         {
             target.playSound(target.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, SoundCategory.MASTER, 1.0f, 1.0f);
-            data.incrementInt(this.name().toLowerCase(), 1);
-            data.setValue((this.name() + "_EXP").toLowerCase(), 0);
+            data.incrementInt(this.dataName(), 1);
+            data.setValue(this.expName(), 0);
 
             if (AuroraRpgStats.hasBar(target, this))
-                AuroraRpgStats.getBarData(target).getB().setProgress(0 / (double) getRequiredExpAtLevel(data.getInt(this.name().toLowerCase())));
+                AuroraRpgStats.getBarData(target).getB().setProgress(0 / (double) getRequiredExpAtLevel(data.getInt(this.dataName())));
 
             data.incrementInt("skillpoints", 1);
 
-            PrintUtils.sendMessage(target, "Level up! Your §e" + friendlyName + "§7 level has increased by 1 (" + data.getInt(this.name().toLowerCase()) + "). You have earned 1 skill point.");
+            PrintUtils.sendMessage(target, "Level up! Your §e" + friendlyName + "§7 level has increased by 1 (" + data.getInt(this.dataName()) + "). You have earned 1 skill point.");
         }
     }
 
@@ -69,6 +79,6 @@ public enum RpgStat
     {
         int level = data.getInt(this.name().toLowerCase());
 
-        return data.getInt((this.name() + "_EXP").toLowerCase()) >= this.base + (level * levelmod);
+        return data.getInt(this.expName()) >= this.base + (level * levelmod);
     }
 }

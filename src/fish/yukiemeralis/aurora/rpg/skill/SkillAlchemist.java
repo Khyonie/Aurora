@@ -12,7 +12,6 @@ import fish.yukiemeralis.eden.utils.tuple.Tuple2;
 
 public class SkillAlchemist extends AbstractSkill<ProjectileLaunchEvent>
 {
-
     protected SkillAlchemist() 
     {
         super(AuroraSkill.ALCHEMIST, ProjectileLaunchEvent.class);
@@ -31,7 +30,7 @@ public class SkillAlchemist extends AbstractSkill<ProjectileLaunchEvent>
                 ((Player) event.getEntity().getShooter()).getInventory().addItem(item);
             }
         }.runTaskLater(Eden.getInstance(), 5*20);
-        return null;
+        return new Tuple2<>(false, false);
     }
     
 }

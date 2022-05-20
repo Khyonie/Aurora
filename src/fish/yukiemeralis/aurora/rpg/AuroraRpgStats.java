@@ -21,12 +21,12 @@ public class AuroraRpgStats
 
         for (RpgStat stat : RpgStat.values())
         {
-            put(stat.name().toLowerCase(), 0);
-            put(stat.name().toLowerCase() + "_exp", 0);
+            put(stat.dataName(), 0);
+            put(stat.expName(), 0);
         }
 
         for (AuroraSkill skill : AuroraSkill.values())
-            put(skill.name(), false);
+            put(skill.dataName(), false);
     }};
 
     private static Map<Player, Tuple2<RpgStat, BossBar>> TRACKING_PROGRESSION = new HashMap<>();
@@ -67,12 +67,12 @@ public class AuroraRpgStats
 
     public static BossBar registerNewBar(Player player, RpgStat stat)
     {
-        BossBar bar = Eden.getInstance().getServer().createBossBar("§r§e" + stat.getFriendlyName() + " §7progress", BarColor.BLUE, BarStyle.SEGMENTED_10);
+        BossBar bar = Eden.getInstance().getServer().createBossBar("§r§9" + stat.getFriendlyName() + "  progress", BarColor.BLUE, BarStyle.SEGMENTED_10);
 
         TRACKING_PROGRESSION.put(player, new Tuple2<>(stat, bar));
         ModulePlayerData data = Eden.getPermissionsManager().getPlayerData(player).getModuleData("AuroraRPG");
 
-        bar.setProgress(data.getInt((stat.name() + "_EXP").toLowerCase()) / stat.getRequiredExpAtLevel(data.getInt(stat.name().toLowerCase())));
+        bar.setProgress(data.getInt(stat.expName()) / stat.getRequiredExpAtLevel(data.getInt(stat.dataName())));
         bar.addPlayer(player);
         bar.setVisible(true);
 
