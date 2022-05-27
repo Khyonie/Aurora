@@ -1,44 +1,24 @@
 package fish.yukiemeralis.aurora;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Arrow;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.HumanEntity;
-import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
-import org.bukkit.event.entity.EntityTargetEvent;
-import org.bukkit.event.entity.EntityTargetEvent.TargetReason;
-import org.bukkit.event.entity.ProjectileLaunchEvent;
-import org.bukkit.event.inventory.InventoryAction;
-import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import fish.yukiemeralis.aurora.pylons.Pylon;
 import fish.yukiemeralis.aurora.pylons.PylonNetwork;
 import fish.yukiemeralis.aurora.rpg.AuroraRpgStats;
-import fish.yukiemeralis.aurora.rpg.RpgSkillInstance;
-import fish.yukiemeralis.aurora.rpg.enums.AuroraSkill;
 import fish.yukiemeralis.aurora.rpg.enums.RpgStat;
 import fish.yukiemeralis.eden.Eden;
 import fish.yukiemeralis.eden.command.EdenCommand;
 import fish.yukiemeralis.eden.module.EdenModule;
 import fish.yukiemeralis.eden.permissions.ModulePlayerData;
-import fish.yukiemeralis.eden.surface2.SimpleComponentBuilder;
-import fish.yukiemeralis.eden.surface2.component.GuiComponent;
-import fish.yukiemeralis.eden.surface2.component.GuiItemStack;
-import fish.yukiemeralis.eden.surface2.enums.DefaultClickAction;
-import fish.yukiemeralis.eden.surface2.special.PagedSurfaceGui;
 import fish.yukiemeralis.eden.utils.ChatUtils;
 import fish.yukiemeralis.eden.utils.ChatUtils.ChatAction;
 import fish.yukiemeralis.eden.utils.ItemUtils;
@@ -50,7 +30,7 @@ public class AuroraCommand extends EdenCommand
 	{
 		super("aur", parent_module);
 
-		addBranch("trees", "pylons", "item", "mob", "skills", "addsp", "stats", "track", "test");
+		addBranch("trees", "pylons", "item", "mob", "skills", "addsp", "stats", "track");
 
 		getBranch("item").addBranch("name", "lore");
 
@@ -63,7 +43,8 @@ public class AuroraCommand extends EdenCommand
 		getBranch("pylons").getBranch("remove").addBranch("<ONLINE_PLAYERS>");
 
 		getBranch("track").addBranch("<ALL_STATS>");
-		getBranch("test").addBranch("<INTEGER>");
+
+		getBranch("addsp").addBranch("<INTEGER>");
 	}
 
 	@EdenCommandHandler(argsCount = 1, description = "Toggles treecapitator.", usage = "aur trees")
@@ -524,29 +505,13 @@ public class AuroraCommand extends EdenCommand
 		*/
 	}
 
-	private static final GuiItemStack CLOSE_BUTTON = SimpleComponentBuilder.build(Material.BARRIER, "§r§c§lClose", (e) -> e.getWhoClicked().closeInventory(), "§7§oClose this GUI");
-
 	@EdenCommandHandler(usage = "aur skills", description = "Opens the skills GUI.", argsCount = 1)
 	public void edencommand_skills(CommandSender sender, String commandLabel, String[] args)
 	{
 		if (!(sender instanceof Player))
 			return;
 
-		List<GuiComponent> data = new ArrayList<>() {{
-			for (AuroraSkill skill : AuroraSkill.values())
-				add(new RpgSkillInstance(skill, (Player) sender).generate());
-		}};
-
-		List<GuiComponent> topBar = new ArrayList<>();
-		int points = AuroraRpgStats.getSkillPoints((Player) sender);
-
-		topBar.add(CLOSE_BUTTON);
-		GuiItemStack pointsItem = SimpleComponentBuilder.build(Material.GOLD_NUGGET, "§r§6§l" + points + " skill " + PrintUtils.plural(points, "point", "points") + " available", (e) -> {}, "§7§oSkill points are earned by leveling", "§7§oup any stat.");
-
-		topBar.add(pointsItem);
-
-		new PagedSurfaceGui(27, "Skills", (HumanEntity) sender, 0, data, topBar, DefaultClickAction.CANCEL, InventoryAction.PICKUP_ALL, InventoryAction.PICKUP_HALF)
-			.display((HumanEntity) sender);
+		AuroraRpgStats.genSkillsGui((Player) sender).display((Player) sender);
 	}
 
 	@EdenCommandHandler(usage = "aur addsp", description = "/!\\ Add a skill point.", argsCount = 1)
@@ -554,7 +519,20 @@ public class AuroraCommand extends EdenCommand
 	{
 		ModulePlayerData data = Eden.getPermissionsManager().getPlayerData((Player) sender).getModuleData("AuroraRPG");
 
-		data.incrementInt("skillpoints", 1);
+		int value = 1;
+
+		if (args.length > 1)
+		{
+			try {
+				value = Integer.parseInt(args[1]);
+			} catch (NumberFormatException e) {
+				PrintUtils.sendMessage(sender, "§cInvalid integer. Input must be any integer between -2147483648 and 2147483647.");
+				return;
+			}
+		}
+	
+		data.incrementInt("skillpoints", value);
+		PrintUtils.sendMessage(sender, "Success.");
 	}
 
 	@EdenCommandHandler(usage = "aur stats", description = "View your RPG stats.", argsCount = 1)
@@ -603,28 +581,5 @@ public class AuroraCommand extends EdenCommand
 		} catch (IllegalArgumentException e) {
 			PrintUtils.sendMessage(sender, "§cInvalid stat name \"" + args[1] + "\".");
 		}
-	}
-
-	@EdenCommandHandler(usage = "aur test <number>", description = "Runs a suite of tests.", argsCount = 2)
-	public void edencommand_test(CommandSender sender, String commandLabel, String[] args)
-	{
-		try { Integer.parseInt(args[1]); } catch (NumberFormatException e) { return; }
-
-		PrintUtils.sendMessage(sender, "Beginning test with " + args[1] + "iterations. Note that because of the luck-based nature of skills, run-to-run variance may exist. Increasing the number of iterations will decrease variance at the cost of time.");
-
-		Player player = (Player) sender;
-		Mob target = (Mob) player.getWorld().spawnEntity(player.getTargetBlockExact(10).getLocation(), EntityType.PIG);
-
-		Event[] testEvents = new Event[] {
-			new EntityDamageByEntityEvent(target, player, DamageCause.CUSTOM, new HashMap<>(), new HashMap<>()),
-			new EntityDamageByEntityEvent(player, target, DamageCause.CUSTOM, new HashMap<>(), new HashMap<>()),
-			new ProjectileLaunchEvent(player.launchProjectile(Arrow.class)),
-			new EntityTargetEvent(target, player, TargetReason.CUSTOM),
-			new PlayerRespawnEvent(player, player.getLocation(), true, false),
-		};
-
-		for (int i = 0; i < Integer.parseInt(args[1]); i++)
-			for (Event e : testEvents)
-				Eden.getInstance().getServer().getPluginManager().callEvent(e);
 	}
 }

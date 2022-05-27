@@ -35,11 +35,15 @@ public class RpgSkillInstance implements GuiComponent
         List<String> description = DataUtils.mapList(Arrays.asList(skill.getDescription()), (in) -> "§7§o" + in);
         description.add("");
 
-        String message = "§r§aThis skill has been unlocked!";
-        if (!skill.isUnlocked(target))
+        String message = "§r§aSkill level: " + skill.getLevel(target) + "/" + skill.getMaxLevel();
+        if (!skill.isUnlocked(target)) 
             message = AuroraRpgStats.hasSkillPoint(target) ? "§r§7Click to unlock skill!" : "§r§7You don't have any skill points.";
-
+        
         description.add(message);
+
+        if (skill.isUnlocked(target))
+            description.add(skill.getLevel(target) == skill.getMaxLevel() ? "§r§7Skill has reached its max level." : (AuroraRpgStats.hasSkillPoint(target) ? "§r§7Click to level up skill!" : "§r§7You don't have any skill points."));
+
         return SimpleComponentBuilder.build(icon, name, 
             (e) -> {
                 if (!AuroraRpgStats.hasSkillPoint(target))
@@ -48,30 +52,27 @@ public class RpgSkillInstance implements GuiComponent
                     return;
                 }
 
-                if (skill.isUnlocked(target))
+                int newLevel = skill.skillLevelUp(target);
+
+                if (newLevel == Integer.MIN_VALUE)
                 {
-                    PrintUtils.sendMessage(target, "You already have this skill!");
+                    PrintUtils.sendMessage(target, "This skill is at its max level! (" + skill.getLevel(target) + "/" + skill.getMaxLevel() + ")");
                     return;
                 }
 
-                if (!skill.unlockForPlayer(target))
+                int points = AuroraRpgStats.getSkillPoints(target);
+
+                if (newLevel == 1)
                 {
-                    PrintUtils.sendMessage(target, "You already have this skill!");
-                    return;
+                    PrintUtils.sendMessage(target, "§aUnlocked " + skill.getName() + "§a! You have §e" + points + "§a skill " + PrintUtils.plural(points, "point", "points") + " remaining.");
+                } else {   
+                    PrintUtils.sendMessage(target, "§aLevelled up §b" + skill.getName() + "§a! §e" + (newLevel - 1) + " -> " + newLevel + "§a. You have §e" + points + "§a skill " + PrintUtils.plural(points, "point", "points") + " remaining.");
                 }
-                PrintUtils.sendMessage(target, "§aUnlocked " + skill.getName() + "!");
                 target.playSound(target.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.0f);
 
-                int points = AuroraRpgStats.getSkillPoints((Player) e.getWhoClicked());
-                GuiItemStack pointsItem = SimpleComponentBuilder.build(Material.GOLD_NUGGET, "§r§6§l" + points + " skill " + PrintUtils.plural(points, "point", "points") + " available", (event) -> {}, "§7§oSkill points are earned by leveling", "§7§oup any stat.");
-                SurfaceGui.getOpenGui(e.getWhoClicked()).unwrap().updateSingleItem(e.getWhoClicked(), 1, pointsItem, false);
-
-                int index = 0;
-                for (AuroraSkill skill : AuroraSkill.values())
-                {
-                    SurfaceGui.getOpenGui(e.getWhoClicked()).unwrap().updateSingleComponent(e.getWhoClicked(), 9 + index, new RpgSkillInstance(skill, (Player) e.getWhoClicked()).generate());
-                    index++;
-                }
+                // Update item
+                SurfaceGui.getOpenGui(e.getWhoClicked()).unwrap().rename("Skills | " + points + " skill " + PrintUtils.plural(points, "point", "points"));
+                SurfaceGui.getOpenGui(e.getWhoClicked()).unwrap().updateSingleComponent(e.getWhoClicked(), e.getSlot(), generate());
             }, 
             description.toArray(new String[description.size()])
         );

@@ -56,6 +56,7 @@ public class AccountListener implements Listener
 		{
 			key = modData.next();
 
+			// Update old RPG double stats to be ints
 			try {
 				RpgStat.valueOf(key); // This will throw an exception if the stat doesn't exist
 
@@ -63,19 +64,34 @@ public class AccountListener implements Listener
 				modData.remove();
 			} catch (IllegalArgumentException e) {}
 
+			// Update old uppercase-style skill unlocks to be lowercase. Additionally, convert to level-based system
 			try {
 				AuroraSkill.valueOf(key);
 
-				updatedData.put(key.toLowerCase(), account.getModuleData("AuroraRPG").getValue(key, Boolean.class));
+				boolean value = account.getModuleData("AuroraRPG").getValue(key, Boolean.class);
+				updatedData.put(key.toLowerCase(), value ? 1 : 0);
+
 				modData.remove();
+				continue;
+			} catch (IllegalArgumentException e) {}
+
+			// Update old boolean skill format to level-based format
+			try {
+				AuroraSkill.valueOf(key.toLowerCase());
+
+				if (account.getModuleData("AuroraRPG").getValue(key.toLowerCase(), Boolean.class) == null)
+					continue;
+
+				// Skill is in true/false format, update so that 0 = locked, 1 = unlocked
+				updatedData.put(key.toLowerCase(), account.getModuleData("AuroraRPG").getValue(key.toLowerCase(), Boolean.class) ? 1 : 0);
 			} catch (IllegalArgumentException e) {}
 		}
 
 		account.getModuleData("AuroraRPG").getModuleData().putAll(updatedData);
 		if (updatedData.size() != 0)
 		{
-			PrintUtils.log("Successfully updated this player's data to the new naming convention.");
-			PrintUtils.sendMessage(event.getPlayer(), "§aTa-da! Your RPG data is now up-to-date.");
+			PrintUtils.log("Successfully updated " + event.getPlayer().getName() + "'s data to the new naming convention.");
+			PrintUtils.sendMessage(event.getPlayer(), "§aTa-da! Your skills and stats data is now up-to-date.");
 		}
 	}
 }

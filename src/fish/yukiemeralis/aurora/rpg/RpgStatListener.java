@@ -8,7 +8,10 @@ import java.util.Random;
 
 import org.bukkit.Effect;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.CreatureSpawner;
 import org.bukkit.entity.Arrow;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -19,12 +22,13 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityTargetEvent;
+import org.bukkit.event.entity.EntityTargetEvent.TargetReason;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
-import org.bukkit.event.entity.EntityTargetEvent.TargetReason;
 import org.bukkit.event.player.PlayerBedLeaveEvent;
 import org.bukkit.event.player.PlayerItemMendEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
@@ -40,6 +44,7 @@ import fish.yukiemeralis.aurora.rpg.skill.AbstractSkill;
 import fish.yukiemeralis.aurora.rpg.skill.SkillRefundArrow;
 import fish.yukiemeralis.eden.Eden;
 import fish.yukiemeralis.eden.permissions.ModulePlayerData;
+import fish.yukiemeralis.eden.utils.ItemUtils;
 import fish.yukiemeralis.eden.utils.PrintUtils;
 import fish.yukiemeralis.eden.utils.tuple.Tuple2;
 
@@ -68,7 +73,7 @@ public class RpgStatListener implements Listener
             // This is already ported over to the SkillNinjaTraining skill, so here it remains
             if (AuroraSkill.NINJA_TRAINING.isUnlocked((Player) event.getEntity()))
             {
-                if (AuroraSkill.NINJA_TRAINING.proc())
+                if (AuroraSkill.NINJA_TRAINING.proc((Player) event.getEntity()))
                 {
                     event.setCancelled(true);
                     return;
@@ -276,6 +281,18 @@ public class RpgStatListener implements Listener
             return;
     }
 
+    @EventHandler
+    public void onPlace(BlockPlaceEvent event)
+    {
+        if (!event.getBlockPlaced().getType().equals(Material.SPAWNER))
+            return;
+
+        if (!ItemUtils.hasNamespacedKey(event.getItemInHand(), "spawnerType"))
+            return;
+
+        setSpawnerType(event.getBlockPlaced(), EntityType.valueOf(ItemUtils.readFromNamespacedKey(event.getItemInHand(), "spawnerType")));
+    }
+
     //
     // Helpers
     //
@@ -339,5 +356,16 @@ public class RpgStatListener implements Listener
                 }
             }
         }.runTaskLater(Eden.getInstance(), duration);
+    }
+
+    private static void setSpawnerType(Block block, EntityType type)
+    {
+        if (!block.getType().equals(Material.SPAWNER))
+            return;
+
+        CreatureSpawner state = (CreatureSpawner) block.getState();
+        state.setSpawnedType(type);
+
+        state.update();
     }
 }

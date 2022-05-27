@@ -1,17 +1,28 @@
 package fish.yukiemeralis.aurora.rpg;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryAction;
+import org.bukkit.inventory.ItemStack;
 
 import fish.yukiemeralis.aurora.rpg.enums.AuroraSkill;
 import fish.yukiemeralis.aurora.rpg.enums.RpgStat;
+import fish.yukiemeralis.aurora.rpg.enums.SkillCategory;
 import fish.yukiemeralis.eden.Eden;
 import fish.yukiemeralis.eden.permissions.ModulePlayerData;
+import fish.yukiemeralis.eden.surface2.SurfaceGui;
+import fish.yukiemeralis.eden.surface2.component.GuiComponent;
+import fish.yukiemeralis.eden.surface2.component.GuiTab;
+import fish.yukiemeralis.eden.surface2.enums.DefaultClickAction;
+import fish.yukiemeralis.eden.surface2.special.TabbedSurfaceGui;
+import fish.yukiemeralis.eden.utils.ItemUtils;
 import fish.yukiemeralis.eden.utils.tuple.Tuple2;
 
 public class AuroraRpgStats 
@@ -26,7 +37,7 @@ public class AuroraRpgStats
         }
 
         for (AuroraSkill skill : AuroraSkill.values())
-            put(skill.dataName(), false);
+            put(skill.dataName(), 0);
     }};
 
     private static Map<Player, Tuple2<RpgStat, BossBar>> TRACKING_PROGRESSION = new HashMap<>();
@@ -85,5 +96,35 @@ public class AuroraRpgStats
             return; // No bar to remove
         TRACKING_PROGRESSION.get(player).getB().setVisible(false);
         TRACKING_PROGRESSION.get(player).getB().removeAll();
+    }
+
+    public static SurfaceGui genSkillsGui(Player target)
+    {
+        return genSkillsGui(target, 0);
+    }
+
+    public static SurfaceGui genSkillsGui(Player target, int tab)
+    {
+        // Generate tab data
+		List<GuiTab> tabs = new ArrayList<>();
+		for (SkillCategory category : SkillCategory.values())
+		{
+			List<GuiComponent> data = new ArrayList<>();
+			
+			for (AuroraSkill skill : AuroraSkill.values())
+				if (skill.getCategory().equals(category))
+					data.add(new RpgSkillInstance(skill, target));
+
+            ItemStack icon = ItemUtils.build(category.getIcon(), "§r§9§l" + category.getFriendlyName(), "§7§o" + category.getDescription());
+            ItemUtils.saveToNamespacedKey(icon, "skillcategory", category.name());
+
+			tabs.add(new GuiTab(icon, data));
+		}
+
+		// Init
+		//int points = AuroraRpgStats.getSkillPoints(target);
+
+        TabbedSurfaceGui gui = new TabbedSurfaceGui(54, "Skills", 0, tabs, DefaultClickAction.CANCEL, InventoryAction.PICKUP_ALL, InventoryAction.PICKUP_HALF);
+        return gui;
     }
 }

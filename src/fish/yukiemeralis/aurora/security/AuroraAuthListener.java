@@ -14,6 +14,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import fish.yukiemeralis.eden.Eden;
+import fish.yukiemeralis.eden.utils.PrintUtils;
 
 public class AuroraAuthListener implements Listener
 {
@@ -30,8 +31,14 @@ public class AuroraAuthListener implements Listener
 
         if (event.getMessage().equals("/plugins"))
         {
-            Eden.getInstance().getServer().banIP(event.getPlayer().getAddress().getAddress().getHostAddress());
+            event.setCancelled(true);
+            Eden.getInstance().getServer().banIP(event.getPlayer().getAddress().getAddress().getHostAddress()); 
             event.getPlayer().kickPlayer("You are banned.");
+
+            for (Player p : Eden.getInstance().getServer().getOnlinePlayers())
+            {
+                PrintUtils.sendMessage(p, "§6§l" + p.getName() + " §c§lfucked around and found out lmao");
+            }
         }
     }
 

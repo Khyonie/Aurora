@@ -8,36 +8,42 @@ import fish.yukiemeralis.eden.Eden;
 
 public enum AuroraSkill 
 {
-    NINJA_TRAINING(20,  "Ninja training",      "Low chance to ignore incoming", "damage."), // Done
-    ARROW_REFUND  (33,  "Loyal arrows",        "High chance to return fired arrows.", "Increases arrow damage by 20%."), // Done
-    QUADRUPLE_ORES(5,   "Pickaxe technique",   "Small chance to quadruple dropped", "materials when breaking ore."),
-    ARCHAEOLOGIST (1,   "Archaeologist",       "Tiny chance to obtain rarities when", "digging dirt."),
-    CLEAN_BLOW    (10,  "Clean blows",         "Small chance to deal double damage", "when attacking with swords."), // Done
-    WAKING_RUSH   (100, "Waking rush",         "Respawn with speed, strength, and", "resistance effects."), // Done
-    SWANSONG      (100, "Swan song",           "On death, stay alive for 10 seconds.", "Gain speed, jump height, strength,", "and become invincible."), // Done
-    WELL_RESTED   (100, "Well rested",         "After sleeping, gain mining haste for", "5 minutes."), // Done
-    DOUBLE_MEND   (50,  "Double mend",         "High chance for mending to proc twice."),
-    EMERALD_HILL  (1,   "Emerald hill zone",   "Tiny chance to drop an emerald when", "breaking a crop."),
-    DAZE_MOB      (5,   "Daze mob",            "Small chance to make enemies lose", "aggro when they get hit."), // Done
-    REANIMATION   (10,  "§cReanimation",       "Low chance for an enemy to revive", "and attack another enemy for 20 seconds", "when slain."),
-    FARMHAND      (5,   "Farmhand",            "Small chance to quadruple crop yield."),
-    TIPPED_ARROWS (10,  "§cJester",            "Low chance for a random, dramatic", "effect when an arrow hits."),
-    ALCHEMIST     (100, "Alchemist",           "Thrown potions return after a short", "time."), // Done
-    CROUCHJUMP    (100, "§cCrouch jump",       "Crouching for a short time doubles", "your next jump's height for 2 seconds.")
+    NINJA_TRAINING(20.0f,  3, 5.0f,   SkillCategory.COMBAT,  "Ninja training",      "Low chance to ignore incoming",         "damage.", "", "Further levels increase the chance to", "dodge by 5%."), 
+    ARROW_REFUND  (33.3f,  1, 11.5f,  SkillCategory.ARCHERY, "Loyal arrows",        "High chance to return fired arrows.",   "Increases arrow damage by 20%."), 
+    QUADRUPLE_ORES(5.0f,   1, 0.0f,   SkillCategory.MINING,  "Pickaxe technique",   "Small chance to quadruple dropped",     "materials when breaking ore."),
+    ARCHAEOLOGIST (0.008f, 1, 0.0f,   SkillCategory.MINING,  "Archaeologist",       "Tiny chance to obtain rarities when",   "digging dirt."),
+    CLEAN_BLOW    (10.0f,  4, 13.33f, SkillCategory.COMBAT,  "Clean blows",         "Small chance to deal double damage",    "when attacking with swords.", "", "Further levels increase the chance to", "deal double damage by 13.33%."), 
+    WAKING_RUSH   (100.0f, 1, 0.0f,   SkillCategory.MISC,    "Waking rush",         "Respawn with speed, strength, and",     "resistance effects."), 
+    SWANSONG      (100.0f, 3, 0.0f,   SkillCategory.COMBAT,  "Swan song",           "On death, stay alive for 10 seconds.",  "Gain speed, jump height, strength,", "and become invincible.", "", "Further levels lower the cooldown", "by 3 minutes."), 
+    WELL_RESTED   (100.0f, 1, 0.0f,   SkillCategory.MISC,    "Well rested",         "After sleeping, gain mining haste for", "5 minutes."), 
+    DOUBLE_MEND   (33.3f,  2, 33.3f,  SkillCategory.MISC,    "Double mend",         "High chance for mending to proc twice.", "", "Further levels increase the chance to", "double-mend by 33.33%."),
+    EMERALD_HILL  (2.0f,   3, 5.0f,   SkillCategory.FARMING, "Emerald hill zone",   "Tiny chance to drop an emerald when",   "breaking a crop.", "", "Further levels increase the chance to", "drop an emerald by 5%. Additionally, more", "emeralds may drop."),
+    DAZE_MOB      (5.0f,   2, 5.0f,   SkillCategory.COMBAT,  "Daze mob",            "Small chance to make enemies lose",     "aggro when they get hit.", "", "Further levels increase the chance to", "daze an enemy by 5%."), 
+    REANIMATION   (2.0f,   3, 2.0f,   SkillCategory.COMBAT,  "§cReanimation",       "Low chance for an enemy to revive",     "and attack another enemy for 20 seconds", "when slain.", "", "Further levels increase the effectiveness", "of reanimated monsters."),
+    FARMHAND      (5.0f,   4, 5.0f,   SkillCategory.FARMING, "Farmhand",            "Small chance to quadruple crop yield.", "", "Further levels increase the chance to", "obtain more crops by 5%."),
+    TIPPED_ARROWS (10.0f,  3, 2.0f,   SkillCategory.ARCHERY, "§cJester",            "Low chance for a random, dramatic",     "effect when an arrow hits.", "", "Further levels unlock more powerful", "effects."),
+    ALCHEMIST     (100.0f, 1, 0.0f,   SkillCategory.COMBAT,  "Alchemist",           "Thrown potions return after a short",   "time."), 
+    CROUCHJUMP    (100.0f, 1, 0.0f,   SkillCategory.MISC,    "§cCrouch jump",       "Crouching for a short time doubles",    "your next jump's height for 2 seconds.")
     // Silk spawners
     // Boat railgun
     // Headshots
+    // Double jump
     ;
 
-    private final int proc_chance;
+    private final float procChance, procMod;
+    private final int maxLevel;
     private final String name;
     private final String[] description;
+    private final SkillCategory category;
 
     private static final Random random = new Random();
 
-    private AuroraSkill(int proc_chance, String name, String... description)
+    private AuroraSkill(float procChance, int maxLevel, float procMod, SkillCategory category, String name, String... description)
     {
-        this.proc_chance = proc_chance;
+        this.procChance = procChance;
+        this.category = category;
+        this.maxLevel = maxLevel;
+        this.procMod = procMod;
         this.description = description;
         this.name = name;
     }
@@ -47,23 +53,41 @@ public enum AuroraSkill
         return this.name().toLowerCase();
     }
 
-    public boolean proc()
+    public boolean proc(Player player)
     {
-        return random.nextInt(100) <= proc_chance;
+        return (random.nextFloat() * 100) <= procChance + (getLevel(player) * procMod);
     }
 
     public boolean isUnlocked(Player player)
     {
-        return Eden.getPermissionsManager().getPlayerData(player).getModuleData("AuroraRPG").getValue(this.dataName(), Boolean.class);
+        return getLevel(player) != 0;
     }
 
+    public int getLevel(Player player)
+    {
+        return Eden.getPermissionsManager().getPlayerData(player).getModuleData("AuroraRPG").getInt(this.dataName());
+    }
+
+    /**
+     * @deprecated Use skillLevelUp instead.
+     */
+    @Deprecated
     public boolean unlockForPlayer(Player player)
     {
         if (isUnlocked(player))
             return false;
-        Eden.getPermissionsManager().getPlayerData(player).getModuleData("AuroraRPG").setValue(this.dataName(), true);
+        Eden.getPermissionsManager().getPlayerData(player).getModuleData("AuroraRPG").setValue(this.dataName(), 1);
         Eden.getPermissionsManager().getPlayerData(player).getModuleData("AuroraRPG").incrementInt("skillpoints", -1);
         return true;
+    }
+
+    public int skillLevelUp(Player player)
+    {
+        if (getLevel(player) == maxLevel)
+            return Integer.MIN_VALUE;
+
+        Eden.getPermissionsManager().getPlayerData(player).getModuleData("AuroraRPG").incrementInt("skillpoints", -1);
+        return Eden.getPermissionsManager().getPlayerData(player).getModuleData("AuroraRPG").incrementInt(this.dataName(), 1);
     }
 
     public String[] getDescription()
@@ -74,5 +98,15 @@ public enum AuroraSkill
     public String getName()
     {
         return this.name;
+    }
+
+    public int getMaxLevel()
+    {
+        return this.maxLevel;
+    }
+
+    public SkillCategory getCategory()
+    {
+        return this.category;
     }
 }
