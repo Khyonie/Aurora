@@ -16,7 +16,7 @@ import fish.yukiemeralis.eden.utils.tuple.Tuple2;
 
 public class SkillDazeMob extends AbstractSkill<EntityDamageByEntityEvent>
 {
-    protected SkillDazeMob() 
+    public SkillDazeMob() 
     {
         super(AuroraSkill.DAZE_MOB, EntityDamageByEntityEvent.class);
     }

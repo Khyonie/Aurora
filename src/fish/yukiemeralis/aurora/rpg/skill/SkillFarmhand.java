@@ -2,6 +2,7 @@ package fish.yukiemeralis.aurora.rpg.skill;
 
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
+import org.bukkit.block.data.Ageable;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
@@ -14,7 +15,7 @@ import fish.yukiemeralis.eden.utils.tuple.Tuple2;
 
 public class SkillFarmhand extends AbstractSkill<BlockBreakEvent>
 {
-    protected SkillFarmhand() 
+    public SkillFarmhand() 
     {
         super(AuroraSkill.FARMHAND, BlockBreakEvent.class);
     }
@@ -25,6 +26,9 @@ public class SkillFarmhand extends AbstractSkill<BlockBreakEvent>
         Option<SkillResult> data = new Option<>(SkillResult.class);
 
         if (!RpgBlockLookups.isCrop(event.getBlock().getType()))
+            return data.some(new SkillResult(false, false));
+
+        if (((Ageable) event.getBlock().getBlockData()).getAge() < ((Ageable) event.getBlock().getBlockData()).getMaximumAge())
             return data.some(new SkillResult(false, false));
 
         return data.none();

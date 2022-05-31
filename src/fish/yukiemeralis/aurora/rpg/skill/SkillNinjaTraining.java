@@ -10,7 +10,7 @@ import fish.yukiemeralis.eden.utils.tuple.Tuple2;
 
 public class SkillNinjaTraining extends AbstractSkill<EntityTargetEvent>
 {
-    protected SkillNinjaTraining() 
+    public SkillNinjaTraining() 
     {
         super(AuroraSkill.NINJA_TRAINING, EntityTargetEvent.class);
     }

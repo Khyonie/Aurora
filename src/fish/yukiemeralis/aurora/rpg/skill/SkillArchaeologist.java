@@ -15,7 +15,7 @@ import fish.yukiemeralis.eden.utils.tuple.Tuple2;
 
 public class SkillArchaeologist extends AbstractSkill<BlockBreakEvent>
 {
-    protected SkillArchaeologist() 
+    public SkillArchaeologist() 
     {
         super(AuroraSkill.ARCHAEOLOGIST, BlockBreakEvent.class);
     }

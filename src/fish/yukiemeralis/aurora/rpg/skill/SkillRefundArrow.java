@@ -19,7 +19,7 @@ import fish.yukiemeralis.eden.utils.tuple.Tuple2;
 
 public class SkillRefundArrow extends AbstractSkill<ProjectileLaunchEvent>
 {
-    protected SkillRefundArrow() 
+    public SkillRefundArrow() 
     {
         super(AuroraSkill.ARROW_REFUND, ProjectileLaunchEvent.class);
     }

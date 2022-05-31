@@ -93,7 +93,7 @@ public class ExperienceListener implements Listener
     @EventHandler
     public void onMove(PlayerMoveEvent event)
     {
-        if (event.getPlayer().isClimbing() || event.getPlayer().isFlying() || event.getPlayer().isInWater() || event.getPlayer().isInsideVehicle() || event.getPlayer().isRiptiding() || event.getPlayer().isSwimming())
+        if (event.getPlayer().isClimbing() || event.getPlayer().isGliding() || event.getPlayer().isFlying() || event.getPlayer().isInWater() || event.getPlayer().isInsideVehicle() || event.getPlayer().isRiptiding() || event.getPlayer().isSwimming())
             return;
 
         if (event.getPlayer().isSneaking())

@@ -12,6 +12,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -40,8 +41,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import fish.yukiemeralis.aurora.rpg.enums.AuroraSkill;
 import fish.yukiemeralis.aurora.rpg.enums.RpgStat;
 import fish.yukiemeralis.aurora.rpg.lookups.RpgItemLookups;
-import fish.yukiemeralis.aurora.rpg.skill.AbstractSkill;
-import fish.yukiemeralis.aurora.rpg.skill.SkillRefundArrow;
+import fish.yukiemeralis.aurora.rpg.skill.*;
 import fish.yukiemeralis.eden.Eden;
 import fish.yukiemeralis.eden.permissions.ModulePlayerData;
 import fish.yukiemeralis.eden.utils.ItemUtils;
@@ -52,6 +52,25 @@ public class RpgStatListener implements Listener
 {
     private static final Random random = new Random();
     private static Map<Class<?>, List<AbstractSkill<? extends Event>>> REGISTERED_SKILLS = new HashMap<>();
+
+    public static void initRegister()
+    {
+        register(new SkillAlchemist(), ProjectileLaunchEvent.class);
+        register(new SkillArchaeologist(), BlockBreakEvent.class);
+        register(new SkillAutoReplant(), BlockBreakEvent.class);
+        register(new SkillCleanBlows(), EntityDamageByEntityEvent.class);
+        register(new SkillDazeMob(), EntityDamageByEntityEvent.class);
+        register(new SkillDoubleMend(), PlayerItemMendEvent.class);
+        register(new SkillEmeraldHill(), BlockBreakEvent.class);
+        register(new SkillFarmhand(), BlockBreakEvent.class);
+        register(new SkillNinjaTraining(), EntityTargetEvent.class);
+        register(new SkillQuadrupleOres(), BlockBreakEvent.class);
+        register(new SkillRefundArrow(), ProjectileLaunchEvent.class);
+        register(new SkillSwanSong(), EntityDamageEvent.class);
+        register(new SkillWakingRush(), PlayerRespawnEvent.class);
+        register(new SkillWellRested(), PlayerBedLeaveEvent.class);  
+        register(new SkillSilkSpawners(), BlockBreakEvent.class); 
+    }
 
     public static void register(AbstractSkill<? extends Event> skill, Class<?> event)
     {
@@ -147,6 +166,22 @@ public class RpgStatListener implements Listener
         {
             SkillRefundArrow.refundArrow((Arrow) event.getEntity());
         }
+
+        if (event.getHitEntity() != null)
+        {
+            if (event.getHitEntity() instanceof LivingEntity)
+            {
+                double yDist = ((LivingEntity) event.getHitEntity()).getEyeLocation().getY() - event.getEntity().getLocation().getY();
+                if (yDist < 0.25)
+                {
+                    if (AuroraSkill.HEADSHOT.isUnlocked((Player) event.getEntity().getShooter()))
+                    {
+                        event.getEntity().getWorld().playEffect(((LivingEntity) event.getHitEntity()).getEyeLocation().add(0.0, 0.1, 0.0), Effect.ELECTRIC_SPARK, 0);
+                        headshotArrows.add((Arrow) event.getEntity());
+                    }
+                }
+            }
+        }
     }
 
     @EventHandler
@@ -176,7 +211,15 @@ public class RpgStatListener implements Listener
         ModulePlayerData data = Eden.getPermissionsManager().getPlayerData((Player) ((Projectile) event.getDamager()).getShooter()).getModuleData("AuroraRPG");
 
         // Damage = damage * (1.0 + 0.level)
-        event.setDamage(event.getDamage() * (1.0 + (data.getInt(RpgStat.ARCHERY.dataName()) / 10d)) * (AuroraSkill.ARROW_REFUND.isUnlocked((Player) ((Projectile) event.getDamager()).getShooter()) ? 1.2 : 1.0));
+        event.setDamage(
+            event.getDamage() // Base damage
+            * (1.0 + (data.getInt(RpgStat.ARCHERY.dataName()) / 10d))  // Archery
+            * (AuroraSkill.ARROW_REFUND.isUnlocked((Player) ((Projectile) event.getDamager()).getShooter()) ? 1.2 : 1.0) // Arrow refund bonus
+            * (isHeadshot(projectile) ? (1.5 + (AuroraSkill.HEADSHOT.getLevel((Player) ((Projectile) event.getDamager()).getShooter()) * 0.5)): 1.0) // Headshot
+        );
+
+        if (isHeadshot(projectile))
+            headshotArrows.remove(projectile);
 
         if (trySkill(event, (Player) projectile.getShooter())) // Jester, probably
             return;    
@@ -232,10 +275,10 @@ public class RpgStatListener implements Listener
             return;
 
         if (!(((Player) event.getEntity()).getHealth() - event.getDamage() <= 0.0))
-        {
-            if (trySkill(event, (Player) event.getEntity(), AuroraSkill.SWANSONG))
-                return;
-        }
+            return;
+
+        if (trySkill(event, (Player) event.getEntity(), AuroraSkill.SWANSONG))
+            return;
     }
 
     @EventHandler
@@ -265,7 +308,7 @@ public class RpgStatListener implements Listener
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event)
     {
-        if (trySkill(event, event.getPlayer(), AuroraSkill.QUADRUPLE_ORES, AuroraSkill.ARCHAEOLOGIST, AuroraSkill.EMERALD_HILL, AuroraSkill.FARMHAND))
+        if (trySkill(event, event.getPlayer(), AuroraSkill.QUADRUPLE_ORES, AuroraSkill.ARCHAEOLOGIST, AuroraSkill.EMERALD_HILL, AuroraSkill.FARMHAND, AuroraSkill.SILK_SPAWNERS, AuroraSkill.AUTO_REPLANT))
             return;
     }
 
@@ -304,8 +347,6 @@ public class RpgStatListener implements Listener
 
         for (AbstractSkill<?> skill : REGISTERED_SKILLS.get(event.getClass()))
         {
-            PrintUtils.log("Trying for skill " + skill.getEnum().getName() + " as event " + event.getClass().getSimpleName());
-
             boolean isApplicable = false;
             a: for (AuroraSkill s : applicableSkills)
                 if (skill.getEnum().equals(s))
@@ -314,12 +355,9 @@ public class RpgStatListener implements Listener
                     break a;
                 }
 
-            PrintUtils.log("Is applicable? " + isApplicable);
-
             if (!isApplicable)
                 continue;
 
-            PrintUtils.log("Trying for activation");
             Tuple2<Boolean, Boolean> data = skill.tryActivate(event, target);
 
             if (data.getA())
@@ -358,7 +396,13 @@ public class RpgStatListener implements Listener
         }.runTaskLater(Eden.getInstance(), duration);
     }
 
-    private static void setSpawnerType(Block block, EntityType type)
+    private static List<Arrow> headshotArrows = new ArrayList<>();
+    private static boolean isHeadshot(Projectile projectile)
+    {
+        return headshotArrows.contains((Arrow) projectile);
+    }
+
+    public static void setSpawnerType(Block block, EntityType type)
     {
         if (!block.getType().equals(Material.SPAWNER))
             return;

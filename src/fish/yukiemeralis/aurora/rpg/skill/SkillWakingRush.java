@@ -10,7 +10,7 @@ import fish.yukiemeralis.eden.utils.tuple.Tuple2;
 
 public class SkillWakingRush extends AbstractSkill<PlayerRespawnEvent> 
 {
-    protected SkillWakingRush() 
+    public SkillWakingRush() 
     {
         super(AuroraSkill.WAKING_RUSH, PlayerRespawnEvent.class);
     }

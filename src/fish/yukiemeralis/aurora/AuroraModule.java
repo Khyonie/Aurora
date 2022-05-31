@@ -10,6 +10,7 @@ import fish.yukiemeralis.aurora.pylons.Pylon;
 import fish.yukiemeralis.aurora.pylons.PylonNetwork;
 import fish.yukiemeralis.aurora.pylons.item.Pylporter;
 import fish.yukiemeralis.aurora.rpg.RpgStatCompletions;
+import fish.yukiemeralis.aurora.rpg.RpgStatListener;
 
 import org.bukkit.Material;
 
@@ -75,6 +76,8 @@ public class AuroraModule extends EdenModule
         } catch (NoSuchMethodException e) {
             PrintUtils.printPrettyStacktrace(e);
         }
+
+        RpgStatListener.initRegister();
     }
 
     @Override

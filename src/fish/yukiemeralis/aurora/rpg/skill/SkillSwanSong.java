@@ -16,7 +16,7 @@ import fish.yukiemeralis.eden.utils.tuple.Tuple2;
 
 public class SkillSwanSong extends AbstractSkill<EntityDamageEvent>
 {
-    protected SkillSwanSong() 
+    public SkillSwanSong() 
     {
         super(AuroraSkill.SWANSONG, EntityDamageEvent.class);
     }
@@ -31,7 +31,7 @@ public class SkillSwanSong extends AbstractSkill<EntityDamageEvent>
         Player player = (Player) event.getEntity();
 
         if (SWANSONG_COOLDOWN.contains(player) || SWANSONG_PLAYERS.contains(player))
-            return new Tuple2<>(true, false);
+            return new Tuple2<>(false, false);
 
         PrintUtils.sendMessage(player, "§cSwan song activated! You have 10 seconds before death.");
         
@@ -49,7 +49,7 @@ public class SkillSwanSong extends AbstractSkill<EntityDamageEvent>
         player.setInvulnerable(true);
 
         player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 199, 1));
-        player.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 199, 2));
+        player.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 199, 0 + skill.getLevel(player)));
         player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 199, 0));
 
         new BukkitRunnable() 
@@ -79,7 +79,7 @@ public class SkillSwanSong extends AbstractSkill<EntityDamageEvent>
                     PrintUtils.sendMessage(player, "Swansong has finished cooldown.");
                 }
             }
-        }.runTaskLater(Eden.getInstance(), 300*20);
+        }.runTaskLater(Eden.getInstance(), (1200*20) - ((skill.getLevel(player) - 1) * (300 * 20))); // Cooldown = 20m - (level * 5)
 
         return new Tuple2<>(true, false);
     }

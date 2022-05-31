@@ -3,7 +3,6 @@ package fish.yukiemeralis.aurora.rpg.skill;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 
-import fish.yukiemeralis.aurora.rpg.RpgStatListener;
 import fish.yukiemeralis.aurora.rpg.SkillResult;
 import fish.yukiemeralis.aurora.rpg.enums.AuroraSkill;
 import fish.yukiemeralis.eden.utils.Option;
@@ -15,28 +14,13 @@ public abstract class AbstractSkill<E extends Event>
     protected AuroraSkill skill;
     protected Class<E> handler;
 
-    static {
-        // Initialize skill registry
-        new SkillAlchemist();
-        new SkillArchaeologist();
-        new SkillCleanBlows();
-        new SkillDazeMob();
-        new SkillDoubleMend();
-        new SkillEmeraldHill();
-        new SkillFarmhand();
-        new SkillNinjaTraining();
-        new SkillQuadrupleOres();
-        new SkillRefundArrow();
-        new SkillSwanSong();
-        new SkillWakingRush();
-        new SkillWellRested();   
-    }
+    @SuppressWarnings("unused")
+    private static AbstractSkill<?> register;
 
-    protected AbstractSkill(AuroraSkill skill, Class<E> handler)
+    public AbstractSkill(AuroraSkill skill, Class<E> handler)
     {
         this.skill = skill;
         this.handler = handler;
-        RpgStatListener.register(this, handler);
     }
 
     /**

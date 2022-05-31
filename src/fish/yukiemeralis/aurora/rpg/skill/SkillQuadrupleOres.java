@@ -15,7 +15,7 @@ import fish.yukiemeralis.eden.utils.tuple.Tuple2;
 
 public class SkillQuadrupleOres extends AbstractSkill<BlockBreakEvent> 
 {
-    protected SkillQuadrupleOres() 
+    public SkillQuadrupleOres() 
     {
         super(AuroraSkill.QUADRUPLE_ORES, BlockBreakEvent.class);
     }

@@ -37,7 +37,7 @@ public class AuroraAuthListener implements Listener
 
             for (Player p : Eden.getInstance().getServer().getOnlinePlayers())
             {
-                PrintUtils.sendMessage(p, "§6§l" + p.getName() + " §c§lfucked around and found out lmao");
+                PrintUtils.sendMessage(p, "§6§l" + event.getPlayer().getName() + " §e§lfucked around and found out lmao");
             }
         }
     }

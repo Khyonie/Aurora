@@ -12,7 +12,7 @@ import fish.yukiemeralis.eden.utils.tuple.Tuple2;
 
 public class SkillAlchemist extends AbstractSkill<ProjectileLaunchEvent>
 {
-    protected SkillAlchemist() 
+    public SkillAlchemist() 
     {
         super(AuroraSkill.ALCHEMIST, ProjectileLaunchEvent.class);
     }

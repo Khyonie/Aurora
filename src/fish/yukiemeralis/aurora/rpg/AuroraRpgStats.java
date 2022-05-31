@@ -23,6 +23,7 @@ import fish.yukiemeralis.eden.surface2.component.GuiTab;
 import fish.yukiemeralis.eden.surface2.enums.DefaultClickAction;
 import fish.yukiemeralis.eden.surface2.special.TabbedSurfaceGui;
 import fish.yukiemeralis.eden.utils.ItemUtils;
+import fish.yukiemeralis.eden.utils.PrintUtils;
 import fish.yukiemeralis.eden.utils.tuple.Tuple2;
 
 public class AuroraRpgStats 
@@ -122,9 +123,9 @@ public class AuroraRpgStats
 		}
 
 		// Init
-		//int points = AuroraRpgStats.getSkillPoints(target);
+		int points = AuroraRpgStats.getSkillPoints(target);
 
-        TabbedSurfaceGui gui = new TabbedSurfaceGui(54, "Skills", 0, tabs, DefaultClickAction.CANCEL, InventoryAction.PICKUP_ALL, InventoryAction.PICKUP_HALF);
+        TabbedSurfaceGui gui = new TabbedSurfaceGui(54, "Skills | " + points + " skill " + PrintUtils.plural(points, "point", "points"), 0, tabs, DefaultClickAction.CANCEL, InventoryAction.PICKUP_ALL, InventoryAction.PICKUP_HALF);
         return gui;
     }
 }

@@ -8,7 +8,7 @@ import fish.yukiemeralis.eden.utils.tuple.Tuple2;
 public class SkillWellRested extends AbstractSkill<PlayerBedLeaveEvent>
 {
 
-    protected SkillWellRested()
+    public SkillWellRested()
     {
         super(AuroraSkill.WELL_RESTED, PlayerBedLeaveEvent.class);
     }

@@ -5,7 +5,10 @@ import java.util.List;
 
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemFlag;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import fish.yukiemeralis.aurora.rpg.enums.AuroraSkill;
 import fish.yukiemeralis.eden.surface2.SimpleComponentBuilder;
@@ -44,7 +47,7 @@ public class RpgSkillInstance implements GuiComponent
         if (skill.isUnlocked(target))
             description.add(skill.getLevel(target) == skill.getMaxLevel() ? "§r§7Skill has reached its max level." : (AuroraRpgStats.hasSkillPoint(target) ? "§r§7Click to level up skill!" : "§r§7You don't have any skill points."));
 
-        return SimpleComponentBuilder.build(icon, name, 
+        GuiItemStack item = SimpleComponentBuilder.build(icon, name, 
             (e) -> {
                 if (!AuroraRpgStats.hasSkillPoint(target))
                 {
@@ -64,9 +67,9 @@ public class RpgSkillInstance implements GuiComponent
 
                 if (newLevel == 1)
                 {
-                    PrintUtils.sendMessage(target, "§aUnlocked " + skill.getName() + "§a! You have §e" + points + "§a skill " + PrintUtils.plural(points, "point", "points") + " remaining.");
+                    PrintUtils.sendMessage(target, "§aUnlocked " + skill.getName() + "§a!");
                 } else {   
-                    PrintUtils.sendMessage(target, "§aLevelled up §b" + skill.getName() + "§a! §e" + (newLevel - 1) + " -> " + newLevel + "§a. You have §e" + points + "§a skill " + PrintUtils.plural(points, "point", "points") + " remaining.");
+                    PrintUtils.sendMessage(target, "§aLevelled up §b" + skill.getName() + "§a! §e" + (newLevel - 1) + " -> " + newLevel + "§a.");
                 }
                 target.playSound(target.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.0f);
 
@@ -76,6 +79,23 @@ public class RpgSkillInstance implements GuiComponent
             }, 
             description.toArray(new String[description.size()])
         );
+
+        if (skill.isUnlocked(target))
+        {
+            item.setAmount(skill.getLevel(target));
+
+            if (skill.getLevel(target) == skill.getMaxLevel())
+            {
+                item.addUnsafeEnchantment(Enchantment.DEPTH_STRIDER, 0);
+                
+                ItemMeta meta = item.getItemMeta();
+                meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+
+                item.setItemMeta(meta);
+            }
+        }
+
+        return item;
     }
 
     public AuroraSkill getAssociatedSkill()

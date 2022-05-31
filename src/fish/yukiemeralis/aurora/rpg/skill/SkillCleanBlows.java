@@ -10,7 +10,7 @@ import fish.yukiemeralis.eden.utils.tuple.Tuple2;
 
 public class SkillCleanBlows extends AbstractSkill<EntityDamageByEntityEvent>
 {
-    protected SkillCleanBlows() 
+    public SkillCleanBlows() 
     {
         super(AuroraSkill.CLEAN_BLOW, EntityDamageByEntityEvent.class);
     }

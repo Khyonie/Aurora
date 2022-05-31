@@ -7,7 +7,7 @@ import fish.yukiemeralis.eden.utils.tuple.Tuple2;
 
 public class SkillDoubleMend extends AbstractSkill<PlayerItemMendEvent> 
 {
-    protected SkillDoubleMend() 
+    public SkillDoubleMend() 
     {
         super(AuroraSkill.DOUBLE_MEND, PlayerItemMendEvent.class);
     }

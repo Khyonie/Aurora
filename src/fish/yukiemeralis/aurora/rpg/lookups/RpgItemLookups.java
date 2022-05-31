@@ -1,5 +1,6 @@
 package fish.yukiemeralis.aurora.rpg.lookups;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -29,11 +30,29 @@ public class RpgItemLookups
         Material.EMERALD
     };
 
+    private static final Map<Material, Material> CROP_SEEDS = new HashMap<>() {{
+        put(Material.WHEAT, Material.WHEAT_SEEDS);
+        put(Material.CARROTS, Material.CARROT);
+        put(Material.POTATOES, Material.POTATO);
+        put(Material.BEETROOTS, Material.BEETROOT_SEEDS);
+        put(Material.NETHER_WART, Material.NETHER_WART);
+    }};
+
     public static boolean isOfType(String category, Material mat)
     {
         if (!data.containsKey(category))
             throw new IllegalArgumentException("Unknown RPG item lookup category \"" + category + "\"");
         return data.get(category).contains(mat);
+    }
+
+    public static boolean isSeededCrop(Material mat)
+    {
+        return CROP_SEEDS.containsKey(mat);
+    }
+
+    public static Material getSeed(Material mat)
+    {
+        return CROP_SEEDS.get(mat);
     }
 
     public static Material randomRarity()
