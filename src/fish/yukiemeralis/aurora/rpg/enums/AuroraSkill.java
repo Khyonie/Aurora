@@ -26,7 +26,8 @@ public enum AuroraSkill
     CROUCHJUMP    (100.0f, 1, 0.0f,   SkillCategory.MISC,    "§cCrouch jump",       "Crouching for a short time doubles",    "your next jump's height for 2 seconds."),
     HEADSHOT      (100.0f, 4, 0.0f,   SkillCategory.ARCHERY, "Headshot",            "Increases arrow damage when hitting",   "the head.", "", "Further levels increase damage", "by 50%."),
     SILK_SPAWNERS (100.0f, 1, 0.0f,   SkillCategory.MINING,  "Silk spawners",       "Allows the safe breaking of monster",   "spawners with a silk touch pickaxe."),
-    AUTO_REPLANT  (100.0f, 1, 0.0f,   SkillCategory.FARMING, "Auto-replant",        "Automatically replants applicable",     "crops using seeds in your Inventory.")
+    AUTO_REPLANT  (100.0f, 1, 0.0f,   SkillCategory.FARMING, "Auto-replant",        "Automatically replants applicable",     "crops using seeds in your Inventory."),
+    VEIN_MINER    (100.0f, 1, 0.0f,   SkillCategory.MINING,  "Veinminer",           "Automatically break connected ores.")
     // Boat railgun
     // Double jump
     ;

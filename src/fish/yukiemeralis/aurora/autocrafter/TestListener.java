@@ -8,10 +8,10 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
 import fish.yukiemeralis.eden.Eden;
-import fish.yukiemeralis.eden.module.java.annotations.HideFromCollector;
+import fish.yukiemeralis.eden.module.java.annotations.Unimplemented;
 import fish.yukiemeralis.eden.utils.PrintUtils;
 
-@HideFromCollector
+@Unimplemented("Proof-of-concept for turning a chest inventory into an Autocrafter.")
 /** This class is a proof-of-concept that a chest inventory can be turned into a pseudo-crafting table */
 public class TestListener implements Listener
 {

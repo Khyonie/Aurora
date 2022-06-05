@@ -5,7 +5,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import fish.yukiemeralis.eden.Eden;
+import fish.yukiemeralis.eden.module.java.annotations.Unimplemented;
 
+@Unimplemented
 @SuppressWarnings("unused")
 public class Autocrafter 
 {

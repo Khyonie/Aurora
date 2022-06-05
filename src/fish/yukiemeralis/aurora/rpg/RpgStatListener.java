@@ -68,6 +68,7 @@ public class RpgStatListener implements Listener
         register(new SkillRefundArrow(), ProjectileLaunchEvent.class);
         register(new SkillSwanSong(), EntityDamageEvent.class);
         register(new SkillWakingRush(), PlayerRespawnEvent.class);
+        register(new SkillVeinMiner(), BlockBreakEvent.class);
         register(new SkillWellRested(), PlayerBedLeaveEvent.class);  
         register(new SkillSilkSpawners(), BlockBreakEvent.class); 
     }
@@ -308,7 +309,7 @@ public class RpgStatListener implements Listener
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event)
     {
-        if (trySkill(event, event.getPlayer(), AuroraSkill.QUADRUPLE_ORES, AuroraSkill.ARCHAEOLOGIST, AuroraSkill.EMERALD_HILL, AuroraSkill.FARMHAND, AuroraSkill.SILK_SPAWNERS, AuroraSkill.AUTO_REPLANT))
+        if (trySkill(event, event.getPlayer(), AuroraSkill.VEIN_MINER, AuroraSkill.QUADRUPLE_ORES, AuroraSkill.ARCHAEOLOGIST, AuroraSkill.EMERALD_HILL, AuroraSkill.FARMHAND, AuroraSkill.SILK_SPAWNERS, AuroraSkill.AUTO_REPLANT))
             return;
     }
 

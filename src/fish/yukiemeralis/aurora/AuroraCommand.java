@@ -4,7 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -30,7 +34,7 @@ public class AuroraCommand extends EdenCommand
 	{
 		super("aur", parent_module);
 
-		addBranch("trees", "pylons", "item", "mob", "skills", "addsp", "stats", "track");
+		addBranch("trees", "pylons", "item", "mob", "skills", "addsp", "stats", "track", "autolight");
 
 		getBranch("item").addBranch("name", "lore");
 
@@ -44,7 +48,9 @@ public class AuroraCommand extends EdenCommand
 
 		getBranch("track").addBranch("<ALL_STATS>");
 
-		getBranch("addsp").addBranch("<INTEGER>");
+		getBranch("autolight").addBranch("<RANGE>");
+
+		getBranch("addsp").addBranch("<VALUE>");
 	}
 
 	@EdenCommandHandler(argsCount = 1, description = "Toggles treecapitator.", usage = "aur trees")
@@ -581,5 +587,59 @@ public class AuroraCommand extends EdenCommand
 		} catch (IllegalArgumentException e) {
 			PrintUtils.sendMessage(sender, "§cInvalid stat name \"" + args[1] + "\".");
 		}
+	}
+
+	@EdenCommandHandler(usage = "aur autolight <range>", description = "Automatically places torches to light up the surrounding area.", argsCount = 2)
+	public void edencommand_autolight(CommandSender sender, String commandLabel, String[] args)
+	{
+		int range;
+
+		try {
+			range = Integer.parseInt(args[1]);
+		} catch (NumberFormatException e) {
+			PrintUtils.sendMessage(sender, "Invalid input. Expected number, received \"" + args[1] + "\"");
+			return;
+		}
+
+		World world = ((Player) sender).getWorld();
+		Location center = ((Player) sender).getLocation();
+
+		Runnable t = new Runnable() {
+			@Override
+			public void run() 
+			{
+				Block block;
+				long time = System.currentTimeMillis();
+
+				for (int y = center.getBlockY() - range; y < center.getBlockY() + range; y++)
+				{
+					if (y < -63)
+						continue;
+						
+					for (int x = (range * -1); x < range; x++)
+						loop: for (int z = (range * -1); z < range; z++)
+						{
+							block = world.getBlockAt(center.getBlockX() + x, y, center.getBlockZ() + z);
+							
+							if (block.getType().equals(Material.AIR))
+								continue loop;
+	
+							if (block.getRelative(BlockFace.UP).getType().equals(Material.AIR))
+								continue loop;
+	
+							// if (block.getRelative(BlockFace.UP).getLightLevel() > 5)
+							// 	continue loop;
+	
+							block.getRelative(BlockFace.UP).setType(Material.TORCH);
+						}
+				}
+
+
+				PrintUtils.sendMessage(sender, "Autolight completed in " + (System.currentTimeMillis() - time) + " ms.");
+			}
+		};
+		
+		PrintUtils.sendMessage(sender, "Beginning autolight...");
+		t.run();
 	}
 }
