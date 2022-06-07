@@ -27,6 +27,7 @@ import fish.yukiemeralis.eden.utils.ChatUtils;
 import fish.yukiemeralis.eden.utils.ChatUtils.ChatAction;
 import fish.yukiemeralis.eden.utils.ItemUtils;
 import fish.yukiemeralis.eden.utils.PrintUtils;
+import fish.yukiemeralis.eden.utils.PrintUtils.InfoType;
 
 public class AuroraCommand extends EdenCommand
 {
@@ -604,12 +605,18 @@ public class AuroraCommand extends EdenCommand
 		World world = ((Player) sender).getWorld();
 		Location center = ((Player) sender).getLocation();
 
-		Runnable t = new Runnable() {
-			@Override
-			public void run() 
+		//
+		// Threading
+		//
+		Thread t = new Thread() 
+		{
+			int placed = 0;
+
+			public void run()
 			{
-				Block block;
 				long time = System.currentTimeMillis();
+
+				boolean glowstoneWarned = false;
 
 				for (int y = center.getBlockY() - range; y < center.getBlockY() + range; y++)
 				{
@@ -619,27 +626,95 @@ public class AuroraCommand extends EdenCommand
 					for (int x = (range * -1); x < range; x++)
 						loop: for (int z = (range * -1); z < range; z++)
 						{
-							block = world.getBlockAt(center.getBlockX() + x, y, center.getBlockZ() + z);
+							Block block = world.getBlockAt(center.getBlockX() + x, y, center.getBlockZ() + z);
+
+							// Logic
+							if (!block.getType().isSolid())
+								continue loop;
+
+							if (block.getRelative(BlockFace.UP).getLightLevel() != 0)
+								continue loop;
+
+							if ((!block.getRelative(BlockFace.UP).getType().equals(Material.AIR) && !block.getRelative(BlockFace.UP).getType().equals(Material.WATER)) || block.getRelative(BlockFace.UP).getType().equals(Material.LAVA))
+								continue loop;
+
+							// Water/glowstone
+							if (block.getRelative(BlockFace.UP).getType().equals(Material.WATER))
+							{
+								if (!removeItem((Player) sender, Material.GLOWSTONE))
+								{
+									if (!glowstoneWarned)
+									{
+										glowstoneWarned = true;
+										PrintUtils.sendMessage(sender, "Your inventory has no glowstone. Water will remain unlit.");
+									}
+
+									continue loop;
+								}
+
+								z += 3;
+								placeBlockAndWaitTick(block, Material.GLOWSTONE);
+								continue loop;
+							}
 							
-							if (block.getType().equals(Material.AIR))
-								continue loop;
-	
-							if (block.getRelative(BlockFace.UP).getType().equals(Material.AIR))
-								continue loop;
-	
-							// if (block.getRelative(BlockFace.UP).getLightLevel() > 5)
-							// 	continue loop;
-	
-							block.getRelative(BlockFace.UP).setType(Material.TORCH);
+							// Air/torches
+							if (!removeItem((Player) sender, Material.TORCH))
+							{
+								PrintUtils.sendMessage(sender, "Your inventory has no more torches to place.");
+								return;
+							}
+
+							z += 3;
+							placeBlockAndWaitTick(block, Material.TORCH);
 						}
 				}
 
+				long elapsed = System.currentTimeMillis() - time;
+				PrintUtils.sendMessage(sender, "Autolight completed in " + (elapsed / 1000d) + "s, with " + placed + " lights placed. (" + (placed/(elapsed / 1000f)) + " lights/s)");
+			}
 
-				PrintUtils.sendMessage(sender, "Autolight completed in " + (System.currentTimeMillis() - time) + " ms.");
+			private void placeBlockAndWaitTick(Block block, Material material)
+			{
+				Bukkit.getScheduler().runTask(Eden.getInstance(), () -> {
+					block.getRelative(BlockFace.UP).setType(material);
+
+					// Wake up
+					synchronized (this)
+					{
+						this.notify();
+					}
+				});
+
+				placed++;
+
+				// Sleep
+				synchronized (this)
+				{
+					try {
+						this.wait();
+					} catch (InterruptedException e) {
+						PrintUtils.log("Autolight thread encountered an error starting or during wait cycle!", InfoType.WARN);
+					}
+				}
 			}
 		};
 		
 		PrintUtils.sendMessage(sender, "Beginning autolight...");
-		t.run();
+		t.start();
+	}
+
+	/**
+	 * Removes an item from the target's inventory. If the player doesn't have an instance of that item, returns false.
+	 * @param player
+	 */
+	private static boolean removeItem(Player player, Material material)
+	{
+		int slot = player.getInventory().first(material);
+
+		if (slot == -1)
+			return false;
+
+		player.getInventory().getItem(slot).setAmount(player.getInventory().getItem(slot).getAmount() - 1);
+		return true;
 	}
 }
