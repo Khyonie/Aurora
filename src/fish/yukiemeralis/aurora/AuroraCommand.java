@@ -652,6 +652,13 @@ public class AuroraCommand extends EdenCommand
 									continue loop;
 								}
 
+								// If the player has gotten more glowstone since they ran out, continue to place glowstone
+								if (glowstoneWarned)
+								{
+									PrintUtils.sendMessage(sender, "Continuing to place glowstone. There may be dark patches, perform another run to light them.");
+									glowstoneWarned = false;
+								}
+
 								z += 3;
 								placeBlockAndWaitTick(block, Material.GLOWSTONE);
 								continue loop;
