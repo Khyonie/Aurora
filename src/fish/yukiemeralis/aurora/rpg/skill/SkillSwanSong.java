@@ -4,7 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -14,7 +17,7 @@ import fish.yukiemeralis.eden.Eden;
 import fish.yukiemeralis.eden.utils.PrintUtils;
 import fish.yukiemeralis.eden.utils.tuple.Tuple2;
 
-public class SkillSwanSong extends AbstractSkill<EntityDamageEvent>
+public class SkillSwanSong extends AbstractSkill<EntityDamageEvent> implements Listener
 {
     public SkillSwanSong() 
     {
@@ -84,4 +87,21 @@ public class SkillSwanSong extends AbstractSkill<EntityDamageEvent>
         return new Tuple2<>(true, false);
     }
     
+    // Handle players disconnecting while under swansong, so they aren't invulnerable. 
+    @EventHandler
+    public void onDisconnect(PlayerQuitEvent event)
+    {
+        Player player = event.getPlayer();
+       
+        synchronized (SWANSONG_PLAYERS)
+        {
+            if (SWANSONG_PLAYERS.contains(player))
+            {
+                player.setInvulnerable(false);
+                player.setHealth(0.0);
+            }
+
+            SWANSONG_PLAYERS.remove(player);
+        }
+    }
 }

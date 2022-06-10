@@ -35,7 +35,7 @@ public class AuroraCommand extends EdenCommand
 	{
 		super("aur", parent_module);
 
-		addBranch("trees", "pylons", "item", "mob", "skills", "addsp", "stats", "track", "autolight");
+		addBranch("trees", "pylons", "item", "mob", "skills", "addsp", "stats", "track", "autolight", "clean");
 
 		getBranch("item").addBranch("name", "lore");
 
@@ -67,6 +67,18 @@ public class AuroraCommand extends EdenCommand
 		}
 			
 		PrintUtils.sendMessage(sender, "Disabled treecapitator.");
+	}
+
+	@EdenCommandHandler(usage = "aur clean", description = "Removes any issues caused by swansong.", argsCount = 1)
+	public void edencommand_clean(CommandSender sender, String commandLabel, String[] args)
+	{
+		if (!(sender instanceof Player))
+			return;
+
+		Player player = (Player) sender;
+		player.setInvulnerable(false);
+
+		PrintUtils.sendMessage(sender, "Clean success.");
 	}
 	
 	@EdenCommandHandler(usage = "aur pylons [name | material | password | clearpassword | add | remove]", description = "Modify a pylon's information.", argsCount = 3)
