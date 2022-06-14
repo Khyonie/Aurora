@@ -25,4 +25,12 @@ public class SkillResult
     {
         return this.data;
     }
+
+    /**
+     * Convenience method. Functionally identical to <code>new SkillResult(cancel, ret)</code>
+     */
+    public static SkillResult of(boolean cancel, boolean retern)
+    {
+        return new SkillResult(cancel, retern);
+    }
 }

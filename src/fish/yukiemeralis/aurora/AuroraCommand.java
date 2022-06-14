@@ -1,7 +1,9 @@
 package fish.yukiemeralis.aurora;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -602,6 +604,14 @@ public class AuroraCommand extends EdenCommand
 		}
 	}
 
+	private static final Map<Material, Object> REPLACABLE_BLOCKS = new HashMap<>() {{
+		put(Material.AIR, null);
+		put(Material.WATER, null);
+		put(Material.GRASS, null);
+		put(Material.SNOW, null);
+		put(Material.TALL_GRASS, null);
+	}};
+
 	@EdenCommandHandler(usage = "aur autolight <range>", description = "Automatically places torches to light up the surrounding area.", argsCount = 2)
 	public void edencommand_autolight(CommandSender sender, String commandLabel, String[] args)
 	{
@@ -615,7 +625,7 @@ public class AuroraCommand extends EdenCommand
 		}
 
 		World world = ((Player) sender).getWorld();
-		Location center = ((Player) sender).getLocation();
+		Location center = ((Player) sender).getLocation().clone();
 
 		//
 		// Threading
@@ -640,14 +650,17 @@ public class AuroraCommand extends EdenCommand
 						{
 							Block block = world.getBlockAt(center.getBlockX() + x, y, center.getBlockZ() + z);
 
+							if (block == null)
+								continue loop;
+
 							// Logic
 							if (!block.getType().isSolid())
 								continue loop;
 
-							if (block.getRelative(BlockFace.UP).getLightLevel() != 0)
+							if (block.getRelative(BlockFace.UP).getLightFromBlocks() != 0)
 								continue loop;
 
-							if ((!block.getRelative(BlockFace.UP).getType().equals(Material.AIR) && !block.getRelative(BlockFace.UP).getType().equals(Material.WATER)) || block.getRelative(BlockFace.UP).getType().equals(Material.LAVA))
+							if (!isReplacable(block))
 								continue loop;
 
 							// Water/glowstone
@@ -735,5 +748,12 @@ public class AuroraCommand extends EdenCommand
 
 		player.getInventory().getItem(slot).setAmount(player.getInventory().getItem(slot).getAmount() - 1);
 		return true;
+	}
+
+	private static boolean isReplacable(Block block)
+	{
+		if (block == null)
+			return false;
+		return REPLACABLE_BLOCKS.containsKey(block.getType());
 	}
 }

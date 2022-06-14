@@ -31,7 +31,7 @@ import fish.yukiemeralis.eden.utils.PrintUtils;
     description = "Various fun/useful things for my SMPs.",
     maintainer = "Yuki_emeralis",
     modIcon = Material.SALMON,
-    version = "1.3.4",
+    version = "1.3.6",
     supportedApiVersions = {"v1_16_R3", "v1_17_R1", "v1_18_R1", "v1_18_R2", "v1_19_R1"}
 )
 @LoadBefore(loadBefore = {"Surface2", "Checkpoint"})

@@ -28,6 +28,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.event.entity.EntityTargetEvent.TargetReason;
+import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.player.PlayerBedLeaveEvent;
@@ -63,6 +64,7 @@ public class RpgStatListener implements Listener
         register(new SkillDoubleMend(), PlayerItemMendEvent.class);
         register(new SkillEmeraldHill(), BlockBreakEvent.class);
         register(new SkillFarmhand(), BlockBreakEvent.class);
+        register(new SkillForgemaster(), PrepareAnvilEvent.class);
         register(new SkillNinjaTraining(), EntityTargetEvent.class);
         register(new SkillQuadrupleOres(), BlockBreakEvent.class);
         register(new SkillRefundArrow(), ProjectileLaunchEvent.class);
@@ -335,6 +337,13 @@ public class RpgStatListener implements Listener
             return;
 
         setSpawnerType(event.getBlockPlaced(), EntityType.valueOf(ItemUtils.readFromNamespacedKey(event.getItemInHand(), "spawnerType")));
+    }
+
+    @EventHandler
+    public void onAnvil(PrepareAnvilEvent event)
+    {
+        if (trySkill(event, (Player) event.getViewers().get(0), AuroraSkill.FORGEMASTER))
+            return;
     }
 
     //
