@@ -37,7 +37,7 @@ public class AuroraCommand extends EdenCommand
 	{
 		super("aur", parent_module);
 
-		addBranch("trees", "pylons", "item", "mob", "skills", "addsp", "stats", "track", "autolight", "clean");
+		addBranch("trees", "pylons", "item", "mob", "skills", "addsp", "stats", "track", "autolight", "clean", "^forremoval");
 
 		getBranch("item").addBranch("name", "lore");
 
@@ -69,6 +69,17 @@ public class AuroraCommand extends EdenCommand
 		}
 			
 		PrintUtils.sendMessage(sender, "Disabled treecapitator.");
+	}
+
+	@EdenCommandHandler(argsCount = 1, description = "/!\\ Do not use.", usage = "aur forremoval")
+	public void edencommand_forremoval(CommandSender sender, String commandLabel, String[] args)
+	{
+		ItemStack held = ((Player) sender).getEquipment().getItemInMainHand();
+
+		held.removeEnchantment(Enchantment.MENDING);
+		held.addUnsafeEnchantment(Enchantment.MENDING, 1);
+
+		PrintUtils.sendMessage(sender, "§c/!\\ This command is set for removal.");
 	}
 
 	@EdenCommandHandler(usage = "aur clean", description = "Removes any issues caused by swansong.", argsCount = 1)
@@ -660,7 +671,7 @@ public class AuroraCommand extends EdenCommand
 							if (block.getRelative(BlockFace.UP).getLightFromBlocks() != 0)
 								continue loop;
 
-							if (!isReplacable(block))
+							if (!isReplacable(block.getRelative(BlockFace.UP)))
 								continue loop;
 
 							// Water/glowstone

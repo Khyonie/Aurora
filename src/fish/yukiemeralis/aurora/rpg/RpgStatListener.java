@@ -28,9 +28,9 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.event.entity.EntityTargetEvent.TargetReason;
-import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.event.player.PlayerBedLeaveEvent;
 import org.bukkit.event.player.PlayerItemMendEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
@@ -42,7 +42,24 @@ import org.bukkit.scheduler.BukkitRunnable;
 import fish.yukiemeralis.aurora.rpg.enums.AuroraSkill;
 import fish.yukiemeralis.aurora.rpg.enums.RpgStat;
 import fish.yukiemeralis.aurora.rpg.lookups.RpgItemLookups;
-import fish.yukiemeralis.aurora.rpg.skill.*;
+import fish.yukiemeralis.aurora.rpg.skill.AbstractSkill;
+import fish.yukiemeralis.aurora.rpg.skill.SkillAlchemist;
+import fish.yukiemeralis.aurora.rpg.skill.SkillArchaeologist;
+import fish.yukiemeralis.aurora.rpg.skill.SkillAutoReplant;
+import fish.yukiemeralis.aurora.rpg.skill.SkillCleanBlows;
+import fish.yukiemeralis.aurora.rpg.skill.SkillDazeMob;
+import fish.yukiemeralis.aurora.rpg.skill.SkillDoubleMend;
+import fish.yukiemeralis.aurora.rpg.skill.SkillEmeraldHill;
+import fish.yukiemeralis.aurora.rpg.skill.SkillFarmhand;
+import fish.yukiemeralis.aurora.rpg.skill.SkillForgemaster;
+import fish.yukiemeralis.aurora.rpg.skill.SkillNinjaTraining;
+import fish.yukiemeralis.aurora.rpg.skill.SkillQuadrupleOres;
+import fish.yukiemeralis.aurora.rpg.skill.SkillRefundArrow;
+import fish.yukiemeralis.aurora.rpg.skill.SkillSilkSpawners;
+import fish.yukiemeralis.aurora.rpg.skill.SkillSwanSong;
+import fish.yukiemeralis.aurora.rpg.skill.SkillVeinMiner;
+import fish.yukiemeralis.aurora.rpg.skill.SkillWakingRush;
+import fish.yukiemeralis.aurora.rpg.skill.SkillWellRested;
 import fish.yukiemeralis.eden.Eden;
 import fish.yukiemeralis.eden.permissions.ModulePlayerData;
 import fish.yukiemeralis.eden.utils.ItemUtils;
@@ -339,7 +356,7 @@ public class RpgStatListener implements Listener
         setSpawnerType(event.getBlockPlaced(), EntityType.valueOf(ItemUtils.readFromNamespacedKey(event.getItemInHand(), "spawnerType")));
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onAnvil(PrepareAnvilEvent event)
     {
         if (trySkill(event, (Player) event.getViewers().get(0), AuroraSkill.FORGEMASTER))

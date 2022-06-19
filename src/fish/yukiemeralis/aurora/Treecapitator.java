@@ -27,7 +27,7 @@ public class Treecapitator implements Listener
             add(Material.valueOf(mat + "_AXE"));
     }};
 
-    private static final String[] LOG_MATERIALS = {"OAK", "BIRCH", "JUNGLE", "ACACIA", "SPRUCE", "DARK_OAK"};
+    private static final String[] LOG_MATERIALS = {"OAK", "BIRCH", "JUNGLE", "ACACIA", "SPRUCE", "DARK_OAK", "MANGROVE"};
     private static final List<Material> LOG_TYPES = new ArrayList<>() {{
         for (String mat : LOG_MATERIALS)
             add(Material.valueOf(mat + "_LOG"));
@@ -42,6 +42,7 @@ public class Treecapitator implements Listener
 
         add(Material.WARPED_WART_BLOCK);
         add(Material.NETHER_WART_BLOCK);
+        add(Material.MANGROVE_ROOTS);
     }};
 
     private static final Random random = new Random();

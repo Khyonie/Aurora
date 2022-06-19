@@ -15,7 +15,7 @@ public enum RpgStat
     MINING("Mining", 256, 512),         // No bonus
     DIGGING("Digging", 512, 1024),      // No bonus
     STEALTH("Stealth", 180*20, 300*20), // Increased chance to not be noticed by mobs when sneaking
-    BRAWLING("Brawling", 100, 50),      // Higher damage dealt with no weapon
+    BRAWLING("Brawling", 100, 150),      // Higher damage dealt with no weapon
     ARCHERY("Archery", 64, 128),        // Increased damage with projectiles
     SWORDS("Swordfighting", 200, 100),  // Increased damage with swords
     AXES("Axefighting", 100, 50)        // Increased damage with axes
