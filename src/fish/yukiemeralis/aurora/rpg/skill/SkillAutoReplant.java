@@ -10,7 +10,7 @@ import fish.yukiemeralis.aurora.rpg.SkillResult;
 import fish.yukiemeralis.aurora.rpg.enums.AuroraSkill;
 import fish.yukiemeralis.aurora.rpg.lookups.RpgItemLookups;
 import fish.yukiemeralis.eden.Eden;
-import fish.yukiemeralis.eden.utils.Option;
+import fish.yukiemeralis.eden.utils.option.Option;
 import fish.yukiemeralis.eden.utils.tuple.Tuple2;
 
 public class SkillAutoReplant extends AbstractSkill<BlockBreakEvent> 
@@ -20,20 +20,18 @@ public class SkillAutoReplant extends AbstractSkill<BlockBreakEvent>
         super(AuroraSkill.AUTO_REPLANT, BlockBreakEvent.class);
     }
 
-    public Option<SkillResult> shouldActivate(BlockBreakEvent event, Player player)
+    public Option shouldActivate(BlockBreakEvent event, Player player)
     {
-        Option<SkillResult> option = new Option<>(SkillResult.class);
-
         if (!RpgItemLookups.isSeededCrop(event.getBlock().getType()))
-            return option.some(new SkillResult(false, false));
+            return Option.some(new SkillResult(false, false));
 
         if (((Ageable) event.getBlock().getBlockData()).getAge() < ((Ageable) event.getBlock().getBlockData()).getMaximumAge())
-            return option.some(new SkillResult(false, false));
+            return Option.some(new SkillResult(false, false));
 
         if (event.getPlayer().getInventory().first(RpgItemLookups.getSeed(event.getBlock().getType())) == -1)
-            return option.some(new SkillResult(false, false));
+            return Option.some(new SkillResult(false, false));
 
-        return option.none();
+        return Option.none();
     }
 
     @Override

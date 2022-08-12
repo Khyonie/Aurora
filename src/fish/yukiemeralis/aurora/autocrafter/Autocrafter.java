@@ -5,7 +5,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import fish.yukiemeralis.eden.Eden;
-import fish.yukiemeralis.eden.module.java.annotations.Unimplemented;
+import fish.yukiemeralis.eden.module.annotation.Unimplemented;
 
 @Unimplemented
 @SuppressWarnings("unused")

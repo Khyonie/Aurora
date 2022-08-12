@@ -10,7 +10,7 @@ import org.bukkit.inventory.ItemStack;
 import fish.yukiemeralis.aurora.rpg.RpgStatListener;
 import fish.yukiemeralis.aurora.rpg.SkillResult;
 import fish.yukiemeralis.aurora.rpg.enums.AuroraSkill;
-import fish.yukiemeralis.eden.utils.Option;
+import fish.yukiemeralis.eden.utils.option.Option;
 import fish.yukiemeralis.eden.utils.PrintUtils;
 import fish.yukiemeralis.eden.utils.tuple.Tuple2;
 
@@ -22,16 +22,14 @@ public class SkillDazeMob extends AbstractSkill<EntityDamageByEntityEvent>
     }
 
     @Override
-    protected Option<SkillResult> shouldActivate(EntityDamageByEntityEvent event, Player player)
+    protected Option shouldActivate(EntityDamageByEntityEvent event, Player player)
     {
-        Option<SkillResult> data = new Option<>(SkillResult.class);
-
         ItemStack held = ((Player) event.getDamager()).getInventory().getItemInMainHand();    
 
         if (!held.getType().equals(Material.AIR))
-            return data.some(new SkillResult(false, false));
+            return Option.some(new SkillResult(false, false));
 
-        return data.none();
+        return Option.none();
     }
 
     @Override

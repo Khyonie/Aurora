@@ -4,25 +4,25 @@ import java.io.File;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
+import org.bukkit.Material;
 
 import com.google.gson.reflect.TypeToken;
+
 import fish.yukiemeralis.aurora.pylons.Pylon;
 import fish.yukiemeralis.aurora.pylons.PylonNetwork;
 import fish.yukiemeralis.aurora.pylons.item.Pylporter;
 import fish.yukiemeralis.aurora.rpg.RpgStatCompletions;
 import fish.yukiemeralis.aurora.rpg.RpgStatListener;
-
-import org.bukkit.Material;
-
 import fish.yukiemeralis.eden.Eden;
 import fish.yukiemeralis.eden.core.CompletionsManager;
 import fish.yukiemeralis.eden.core.CompletionsManager.ObjectMethodPair;
 import fish.yukiemeralis.eden.module.EdenModule;
-import fish.yukiemeralis.eden.module.EdenModule.EdenConfig;
 import fish.yukiemeralis.eden.module.EdenModule.LoadBefore;
 import fish.yukiemeralis.eden.module.EdenModule.ModInfo;
+import fish.yukiemeralis.eden.module.annotation.EdenConfig;
 import fish.yukiemeralis.eden.module.annotation.ModuleFamily;
-import fish.yukiemeralis.eden.module.java.annotations.DefaultConfig;
 import fish.yukiemeralis.eden.utils.JsonUtils;
 import fish.yukiemeralis.eden.utils.PrintUtils;
 
@@ -31,19 +31,23 @@ import fish.yukiemeralis.eden.utils.PrintUtils;
     description = "Various fun/useful things for my SMPs.",
     maintainer = "Yuki_emeralis",
     modIcon = Material.SALMON,
-    version = "1.3.7",
+    version = "1.4.1",
     supportedApiVersions = {"v1_19_R1"}
 )
 @LoadBefore(loadBefore = {"Surface2", "Checkpoint"})
 @EdenConfig
-@DefaultConfig(
-    keys =   {"1.17_weather_fix", "enforce_security"}, 
-    values = {"false",            "true"}
-)
 @ModuleFamily(name = "Aurora", icon = Material.SALMON)
 public class AuroraModule extends EdenModule
 {
     private static AuroraModule instance;
+
+    @SuppressWarnings("unused")
+    private static final Map<String, Object> EDEN_DEFAULT_CONFIG = Map.of(
+        "1.17_weather_fix", false,
+        "enforce_security", true,
+        "free_home_pylporter", true,
+        "enable_economy", false
+    );
 
     static List<String> DEFAULT_COMMAND_PERMISSIONS = new ArrayList<>() {{
         add("Aurora.aur");

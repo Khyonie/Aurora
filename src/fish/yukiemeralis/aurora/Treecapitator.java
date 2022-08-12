@@ -30,7 +30,10 @@ public class Treecapitator implements Listener
     private static final String[] LOG_MATERIALS = {"OAK", "BIRCH", "JUNGLE", "ACACIA", "SPRUCE", "DARK_OAK", "MANGROVE"};
     private static final List<Material> LOG_TYPES = new ArrayList<>() {{
         for (String mat : LOG_MATERIALS)
+        {
             add(Material.valueOf(mat + "_LOG"));
+            add(Material.valueOf(mat + "_WOOD"));
+        }
 
         add(Material.CRIMSON_STEM);
         add(Material.WARPED_STEM);
@@ -97,7 +100,7 @@ public class Treecapitator implements Listener
         // Leaves are marked for destruction, but aren't added to open
         Block current = host;
         while (!open.isEmpty())
-        {
+        {   
             current = open.get(0);
 
             startX = current.getLocation().getX(); 

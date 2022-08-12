@@ -8,7 +8,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
 import fish.yukiemeralis.eden.Eden;
-import fish.yukiemeralis.eden.module.java.annotations.Unimplemented;
+import fish.yukiemeralis.eden.module.annotation.Unimplemented;
 import fish.yukiemeralis.eden.utils.PrintUtils;
 
 @Unimplemented("Proof-of-concept for turning a chest inventory into an Autocrafter.")

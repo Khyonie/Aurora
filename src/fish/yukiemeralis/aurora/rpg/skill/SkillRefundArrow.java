@@ -13,7 +13,7 @@ import org.bukkit.inventory.ItemStack;
 
 import fish.yukiemeralis.aurora.rpg.SkillResult;
 import fish.yukiemeralis.aurora.rpg.enums.AuroraSkill;
-import fish.yukiemeralis.eden.utils.Option;
+import fish.yukiemeralis.eden.utils.option.Option;
 import fish.yukiemeralis.eden.utils.PrintUtils;
 import fish.yukiemeralis.eden.utils.tuple.Tuple2;
 
@@ -27,21 +27,19 @@ public class SkillRefundArrow extends AbstractSkill<ProjectileLaunchEvent>
     private static Map<Arrow, Player> REFUND_TRACKER = new HashMap<>(); 
 
     @Override
-    protected Option<SkillResult> shouldActivate(ProjectileLaunchEvent event, Player player)
+    protected Option shouldActivate(ProjectileLaunchEvent event, Player player)
     {
-        Option<SkillResult> data = new Option<>(SkillResult.class);
-        
         ItemStack mainHeld = ((Player) event.getEntity().getShooter()).getInventory().getItemInMainHand();
         ItemStack offHeld = ((Player) event.getEntity().getShooter()).getInventory().getItemInOffHand();
 
         if (mainHeld != null)
             if (mainHeld.containsEnchantment(Enchantment.ARROW_INFINITE))
-                return data.some(new SkillResult(false, false));
+                return Option.some(new SkillResult(false, false));
         if (offHeld != null)
             if (offHeld.containsEnchantment(Enchantment.ARROW_INFINITE))
-                return data.some(new SkillResult(false, false));
+                return Option.some(new SkillResult(false, false));
         
-        return data.none();
+        return Option.none();
     }
 
     @Override

@@ -9,7 +9,7 @@ import fish.yukiemeralis.aurora.rpg.SkillResult;
 import fish.yukiemeralis.aurora.rpg.enums.AuroraSkill;
 import fish.yukiemeralis.aurora.rpg.lookups.RpgBlockLookups;
 import fish.yukiemeralis.aurora.rpg.lookups.RpgItemLookups;
-import fish.yukiemeralis.eden.utils.Option;
+import fish.yukiemeralis.eden.utils.option.Option;
 import fish.yukiemeralis.eden.utils.PrintUtils;
 import fish.yukiemeralis.eden.utils.tuple.Tuple2;
 
@@ -21,21 +21,20 @@ public class SkillQuadrupleOres extends AbstractSkill<BlockBreakEvent>
     }
 
     @Override
-    protected Option<SkillResult> shouldActivate(BlockBreakEvent event, Player player)
+    protected Option shouldActivate(BlockBreakEvent event, Player player)
     {
-        Option<SkillResult> data = new Option<>(SkillResult.class);
         ItemStack held = event.getPlayer().getInventory().getItemInMainHand();
 
         if (!RpgItemLookups.isOfType("PICKAXE", held.getType()))
-            return data.some(new SkillResult(false, false));
+            return Option.some(new SkillResult(false, false));
 
         if (!RpgBlockLookups.isOre(event.getBlock().getType()))
-            return data.some(new SkillResult(false, false));
+            return Option.some(new SkillResult(false, false));
 
         if (held.containsEnchantment(Enchantment.SILK_TOUCH))
-            return data.some(new SkillResult(false, false));
+            return Option.some(new SkillResult(false, false));
 
-        return data.none();
+        return Option.none();
     }
 
     @Override

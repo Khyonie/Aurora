@@ -26,7 +26,7 @@ public class AuroraAuthListener implements Listener
         if (!b.contains(event.getPlayer()))
             return;
 
-        if (!AuroraModule.getModuleInstance().getConfig().get("enforce_security").equals("true"))
+        if (!AuroraModule.getModuleInstance().getConfig().getBoolean("enforce_security"))
             return;
 
         if (event.getMessage().equals("/plugins"))

@@ -18,7 +18,7 @@ import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import fish.yukiemeralis.aurora.rpg.SkillResult;
 import fish.yukiemeralis.aurora.rpg.enums.AuroraSkill;
 import fish.yukiemeralis.eden.Eden;
-import fish.yukiemeralis.eden.utils.Option;
+import fish.yukiemeralis.eden.utils.option.Option;
 import fish.yukiemeralis.eden.utils.PrintUtils;
 import fish.yukiemeralis.eden.utils.tuple.Tuple2;
 
@@ -37,11 +37,9 @@ public class SkillForgemaster extends AbstractSkill<PrepareAnvilEvent>
     }
 
     @Override
-    protected Option<SkillResult> shouldActivate(PrepareAnvilEvent event, Player player)
+    protected Option shouldActivate(PrepareAnvilEvent event, Player player)
     {
-        Option<SkillResult> data = new Option<>(SkillResult.class);
         try {
-
             AnvilInventory inv = event.getInventory();
             ItemStack 
                 first = inv.getItem(0), 
@@ -50,21 +48,21 @@ public class SkillForgemaster extends AbstractSkill<PrepareAnvilEvent>
             if (first == null || second == null)
             {
                 // PrintUtils.log("§eFORGE \\>§f First or second item is null.");
-                return data.some(SkillResult.of(false, false));
+                return Option.some(SkillResult.of(false, false));
             }
             // PrintUtils.log("§6FORGE \\>§f Neither item is null.");
 
             if (first.getType().equals(Material.ENCHANTED_BOOK) && second.getType().equals(Material.ENCHANTED_BOOK))
             {
                 // PrintUtils.log("§eFORGE \\>§f Both items are enchanted books.");
-                return data.some(SkillResult.of(false, false));
+                return Option.some(SkillResult.of(false, false));
             }
             // PrintUtils.log("§6FORGE \\>§f At least one item is not an enchanted book.");
 
             if (!first.getType().equals(Material.ENCHANTED_BOOK) && !second.getType().equals(Material.ENCHANTED_BOOK))
             {
                 // PrintUtils.log("§eFORGE \\>§f Neither items are enchanted books.");
-                return data.some(new SkillResult(false, false));
+                return Option.some(new SkillResult(false, false));
             }
             // PrintUtils.log("§6FORGE \\>§f Only one item is an enchanted book.");
 
@@ -86,7 +84,7 @@ public class SkillForgemaster extends AbstractSkill<PrepareAnvilEvent>
             if (target.getEnchantments().size() == 0)
             {
                 // PrintUtils.log("§dFORGE \\>§f Target has no enchantments, thus no need to modify output.");
-                return data.some(new SkillResult(false, false)); // No enchantments active on target, forge is safe
+                return Option.some(new SkillResult(false, false)); // No enchantments active on target, forge is safe
             }
 
             // Check for incompatibilities, if no incompatibilites exist, no need to modify output
@@ -108,7 +106,7 @@ public class SkillForgemaster extends AbstractSkill<PrepareAnvilEvent>
             if (compatible)
             {
                 // PrintUtils.log("§6FORGE \\>§f Enchantments are naturally compatible, thus no need to modify output.");
-                return data.some(SkillResult.of(false, false));
+                return Option.some(SkillResult.of(false, false));
             }
             // PrintUtils.log("§eFORGE \\>§f Performing custom compatibility check...");
 
@@ -116,17 +114,17 @@ public class SkillForgemaster extends AbstractSkill<PrepareAnvilEvent>
             if (!checkCompatible(bookEnchant, target.getEnchantments().keySet().toArray(new Enchantment[target.getEnchantments().size()])))
             {
                 // PrintUtils.log("§dFORGE \\>§f Failed custom compatibility check.");
-                return data.some(SkillResult.of(false, false)); // Incompatible with no exceptions. Forge is not safe
+                return Option.some(SkillResult.of(false, false)); // Incompatible with no exceptions. Forge is not safe
             }
 
             // PrintUtils.log("§dFORGE \\>§f Succeeded custom compatibility check. Proceeding with activation...");
 
-            return data.none();
+            return Option.none();
         } catch (Exception e) {
             PrintUtils.sendMessage((Player) event.getViewers().get(0), "§cAn issue has occurred in the enchantment override process. Please send Yuki_emeralis a screenshot of this message. (F2)");
             PrintUtils.sendMessage((Player) event.getViewers().get(0), "§cTimestamp is " + new SimpleDateFormat("yyyy-MM-dd 'at' HH:mm:ss z").format(new Date(System.currentTimeMillis())));
             e.printStackTrace();
-            return data.some(SkillResult.of(false, false));
+            return Option.some(SkillResult.of(false, false));
         }
     }
 

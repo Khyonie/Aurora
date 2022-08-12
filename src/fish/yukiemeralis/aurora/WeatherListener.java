@@ -13,7 +13,7 @@ public class WeatherListener implements Listener
 	@EventHandler
 	public void onWeatherChange(WeatherChangeEvent event)
 	{
-		if (AuroraModule.getModuleInstance().getConfig().get("1.17_weather_fix") != "true")
+		if (AuroraModule.getModuleInstance().getConfig().getBoolean("1.17_weather_fix"))
 			return;
 
 		if (random.nextInt(20) != 0)

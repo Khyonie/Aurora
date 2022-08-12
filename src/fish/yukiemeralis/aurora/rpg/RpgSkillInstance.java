@@ -15,6 +15,7 @@ import fish.yukiemeralis.eden.surface2.SimpleComponentBuilder;
 import fish.yukiemeralis.eden.surface2.SurfaceGui;
 import fish.yukiemeralis.eden.surface2.component.GuiComponent;
 import fish.yukiemeralis.eden.surface2.component.GuiItemStack;
+import fish.yukiemeralis.eden.utils.option.Some;
 import fish.yukiemeralis.eden.utils.DataUtils;
 import fish.yukiemeralis.eden.utils.PrintUtils;
 
@@ -74,8 +75,15 @@ public class RpgSkillInstance implements GuiComponent
                 target.playSound(target.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.0f);
 
                 // Update item
-                SurfaceGui.getOpenGui(e.getWhoClicked()).unwrap().rename("Skills | " + points + " skill " + PrintUtils.plural(points, "point", "points"));
-                SurfaceGui.getOpenGui(e.getWhoClicked()).unwrap().updateSingleComponent(e.getWhoClicked(), e.getSlot(), generate());
+                switch (SurfaceGui.getOpenGui(e.getWhoClicked()))
+                {
+                    case Some some:
+                        some.unwrap(SurfaceGui.class).rename("Skills | " + points + " skill " + PrintUtils.plural(points, "point", "points"));
+                        some.unwrap(SurfaceGui.class).updateSingleComponent(e.getWhoClicked(), e.getSlot(), generate());
+                        return;
+                    case default:
+                        return;
+                }
             }, 
             description.toArray(new String[description.size()])
         );

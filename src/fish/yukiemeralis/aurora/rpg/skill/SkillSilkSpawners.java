@@ -10,7 +10,7 @@ import org.bukkit.inventory.ItemStack;
 import fish.yukiemeralis.aurora.rpg.SkillResult;
 import fish.yukiemeralis.aurora.rpg.enums.AuroraSkill;
 import fish.yukiemeralis.eden.utils.ItemUtils;
-import fish.yukiemeralis.eden.utils.Option;
+import fish.yukiemeralis.eden.utils.option.Option;
 import fish.yukiemeralis.eden.utils.tuple.Tuple2;
 
 public class SkillSilkSpawners extends AbstractSkill<BlockBreakEvent>
@@ -21,21 +21,20 @@ public class SkillSilkSpawners extends AbstractSkill<BlockBreakEvent>
     }
 
     @Override
-    public Option<SkillResult> shouldActivate(BlockBreakEvent event, Player player)
+    public Option shouldActivate(BlockBreakEvent event, Player player)
     {
-        Option<SkillResult> data = new Option<>(SkillResult.class);
         ItemStack held = player.getEquipment().getItemInMainHand();
 
         if (!event.getBlock().getType().equals(Material.SPAWNER))
-            return data.some(new SkillResult(false, false));
+            return Option.some(new SkillResult(false, false));
 
         if (held.getType().equals(Material.AIR))
-            return data.some(new SkillResult(false, false));
+            return Option.some(new SkillResult(false, false));
 
         if (!held.containsEnchantment(Enchantment.SILK_TOUCH))
-            return data.some(new SkillResult(false, false));  
+            return Option.some(new SkillResult(false, false));  
 
-        return data.none();
+        return Option.none();
     }
 
     @Override

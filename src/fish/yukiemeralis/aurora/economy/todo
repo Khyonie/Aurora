@@ -1,0 +1,29 @@
+# TODO Data so I don't forget everything
+1) Monetary economy
+- Money is gained by selling items to the admin shop and bartering with other players
+    - Because money is tied to an admin shop, all money is backed by ingame items
+- Commands will be /md, which displays current money, and /md pay <PLAYER> <AMOUNT> which gives AMOUNT money to the target
+- Death will have the player drop 25% of their current money
+
+2) Admin shop, accessed by /shop
+- Items are provided with an initial value as well as an inflation modifier
+    - Upon enough items being sold to the shop, the item will be given an inflation stack, and decreased in value based on the inflation modifier
+    - Each stack is removed after one day 
+- A certain amount of items can be sold to a shop in a given period, after which the item is locked for a time # TODO Decide time
+- Care must be taken to ensure no infinite money exploits can occur!
+
+3) Hit system
+- Server designates a target and provides their location within 500 blocks. 
+
+4) Reworked death system
+- Server setting with VANILLA, VANILLA_COORDS, SAFE, SAFE_COORDS, KEEPINVENTORY, KEEPINVENTORY_COORDS
+    - Vanilla: no difference from vanilla
+    - Vanilla coords: players are provided with coordinates upon death. 
+    - Safe: items are placed inside a chest upon death. If voided, KEEPINVENTORY is used.
+    - Safe coords: items are placed inside a chest upon death. If voided, KEEPINVENTORY_COORDS is used. Players are provided with coords.
+    - Keepinventory: players do not drop anything upon death.
+    - Keepinventory coords: players do not drop anything upon death. Players are provided with coords.
+- With "coords" variants, players can access their previous death locations via a death history GUI
+
+# Uncertain ideas:
+- Player customization unlocked via currency? Particles for arrows and players? 

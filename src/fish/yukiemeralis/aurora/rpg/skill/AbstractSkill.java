@@ -5,8 +5,8 @@ import org.bukkit.event.Event;
 
 import fish.yukiemeralis.aurora.rpg.SkillResult;
 import fish.yukiemeralis.aurora.rpg.enums.AuroraSkill;
-import fish.yukiemeralis.eden.utils.Option;
-import fish.yukiemeralis.eden.utils.Option.OptionState;
+import fish.yukiemeralis.eden.utils.option.Option;
+import fish.yukiemeralis.eden.utils.option.Some;
 import fish.yukiemeralis.eden.utils.tuple.Tuple2;
 
 public abstract class AbstractSkill<E extends Event>
@@ -39,9 +39,13 @@ public abstract class AbstractSkill<E extends Event>
         if (!skill.isUnlocked(skillOwner))
             return new Tuple2<>(false, false);
 
-        Option<SkillResult> shouldActivate = shouldActivate((E) event, skillOwner);
-        if (shouldActivate.getState().equals(OptionState.SOME))
-            return shouldActivate.unwrap().getHost();
+        switch (shouldActivate((E) event, skillOwner))
+        {
+            case Some some:
+                return some.unwrap(SkillResult.class).getHost();
+            case default:
+                break;
+        }
 
         if (!skill.proc(skillOwner))
             return new Tuple2<>(false, false);
@@ -57,9 +61,9 @@ public abstract class AbstractSkill<E extends Event>
      * @param player
      * @return
      */
-    protected Option<SkillResult> shouldActivate(E event, Player player)
+    protected Option shouldActivate(E event, Player player)
     {
-        return new Option<SkillResult>(SkillResult.class).none();
+        return Option.none();
     }
 
     public AuroraSkill getEnum()

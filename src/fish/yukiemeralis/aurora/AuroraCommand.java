@@ -23,6 +23,7 @@ import fish.yukiemeralis.aurora.rpg.AuroraRpgStats;
 import fish.yukiemeralis.aurora.rpg.enums.RpgStat;
 import fish.yukiemeralis.eden.Eden;
 import fish.yukiemeralis.eden.command.EdenCommand;
+import fish.yukiemeralis.eden.command.annotations.EdenCommandHandler;
 import fish.yukiemeralis.eden.module.EdenModule;
 import fish.yukiemeralis.eden.permissions.ModulePlayerData;
 import fish.yukiemeralis.eden.utils.ChatUtils;
