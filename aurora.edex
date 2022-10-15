@@ -4,6 +4,6 @@ name:Aurora
 source:src
 secondarysource:
 output:~/Servers/DevServer/1182/plugins/Eden/mods/Aurora.jar
-classpath:lib/Eden-081122-1.7.0-feature.jar:lib/Rosetta.jar:lib/Surface2.jar:lib/Checkpoint.jar:lib/fastutil-8.5.6.jar:lib/spigot-api-1.19-R0.1-SNAPSHOT-shaded.jar:lib/spigot-1.19-R0.1-SNAPSHOT.jar:lib/spigot-1.18.2-R0.1-SNAPSHOT.jar:lib/spigot-api-1.18.2-R0.1-SNAPSHOT-shaded.jar:src/
+classpath:lib/Eden-101522-1.7.3.jar:lib/Rosetta.jar:lib/Surface.jar:lib/Checkpoint.jar:lib/fastutil-8.5.6.jar:lib/spigot-api-1.19-R0.1-SNAPSHOT-shaded.jar:lib/spigot-1.19-R0.1-SNAPSHOT.jar:lib/spigot-1.18.2-R0.1-SNAPSHOT.jar:lib/spigot-api-1.18.2-R0.1-SNAPSHOT-shaded.jar:src/
 input:
 compilerargs:--release 17 --enable-preview
