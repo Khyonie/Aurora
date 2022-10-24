@@ -12,9 +12,7 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.command.CommandSender;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import coffee.khyonieheart.eden.Eden;
@@ -38,9 +36,9 @@ public class AuroraCommand extends EdenCommand
 	{
 		super("aur", parent_module);
 
-		addBranch("trees", "pylons", "item", "mob", "skills", "addsp", "stats", "track", "autolight", "clean", "^forremoval");
+		addBranch("trees", "pylons", "^item", "skills", "^addsp", "stats", "track", "autolight", "clean");
 
-		getBranch("item").addBranch("name", "lore");
+		getBranch("^item").addBranch("name", "lore");
 
 		getBranch("pylons").addBranch("name", "material", "password", "clearpassword", "add", "remove");
 		getBranch("pylons").getBranch("name").addBranch("<ALL_PYLONS>").addBranch("<NEW_NAME>");
@@ -54,14 +52,13 @@ public class AuroraCommand extends EdenCommand
 
 		getBranch("autolight").addBranch("<RANGE>");
 
-		getBranch("addsp").addBranch("<VALUE>");
+		getBranch("^addsp").addBranch("<VALUE>");
 	}
 
 	@EdenCommandHandler(argsCount = 1, description = "Toggles treecapitator.", usage = "aur trees")
 	public void edencommand_trees(CommandSender sender, String commandLabel, String[] args)
 	{
 		ModulePlayerData data = Eden.getPermissionsManager().getPlayerData((Player) sender).getModuleData("Aurora");
-		//AuroraModule.getPlayerData((Player) sender).setTreeCapEnabled(!AuroraModule.getPlayerData((Player) sender).isTreeCapEnabled());
 		
 		if (data.toggleValue("treecapEnabled"))
 		{
@@ -72,17 +69,6 @@ public class AuroraCommand extends EdenCommand
 		PrintUtils.sendMessage(sender, "Disabled treecapitator.");
 	}
 
-	@EdenCommandHandler(argsCount = 1, description = "/!\\ Do not use.", usage = "aur forremoval")
-	public void edencommand_forremoval(CommandSender sender, String commandLabel, String[] args)
-	{
-		ItemStack held = ((Player) sender).getEquipment().getItemInMainHand();
-
-		held.removeEnchantment(Enchantment.MENDING);
-		held.addUnsafeEnchantment(Enchantment.MENDING, 1);
-
-		PrintUtils.sendMessage(sender, "§c/!\\ This command is set for removal.");
-	}
-
 	@EdenCommandHandler(usage = "aur clean", description = "Removes any issues caused by swansong.", argsCount = 1)
 	public void edencommand_clean(CommandSender sender, String commandLabel, String[] args)
 	{
@@ -90,6 +76,13 @@ public class AuroraCommand extends EdenCommand
 			return;
 
 		Player player = (Player) sender;
+		
+		if (player.isInvulnerable())
+		{
+			PrintUtils.sendMessage(sender, "Nothing to do. If issues are occurring, please contact Khyonie.");
+			return;
+		}
+
 		player.setInvulnerable(false);
 
 		PrintUtils.sendMessage(sender, "Clean success.");
@@ -509,33 +502,6 @@ public class AuroraCommand extends EdenCommand
 				this.sendErrorMessage(sender, args[1], "item");
 				return;
 		}
-	}
-
-	@EdenCommandHandler(usage = "aur mobs <mobclass>", description = "Summons a custom mob.", argsCount = 2)
-	public void edencommand_mob(CommandSender sender, String commandLabel, String[] args)
-	{
-		ItemStack held = ((Player) sender).getInventory().getItemInMainHand();
-		ItemUtils.applyEnchantment(held, Enchantment.MENDING, 1);
-		/**
-		Class<? extends EntityInsentient> mobClass;
-		try {
-			mobClass = (Class<? extends EntityInsentient>) Class.forName("fish.yukiemeralis.aurora.mobs." + args[1]);
-		} catch (ClassNotFoundException e) {
-			PrintUtils.sendMessage(sender, "Could not find a custom mob named \"" + args[1] + "\".");
-			return;
-		}
-
-		Location target = ((Player) sender).getTargetBlock(null, 30).getLocation().add(0, 1, 0);
-		try {
-			Constructor<? extends EntityInsentient> constructor = mobClass.getConstructor(Location.class);
-			EntityInsentient mob = constructor.newInstance(target);
-
-			((CraftWorld) target.getWorld()).getHandle().addEntity(mob);
-			mob.setLocation(target.getX(), target.getY(), target.getZ(), 0.0f, 0.0f);
-		} catch (NoSuchMethodException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-			PrintUtils.sendMessage(sender, "Invalid constructor given to this mob.");
-		}
-		*/
 	}
 
 	@EdenCommandHandler(usage = "aur skills", description = "Opens the skills GUI.", argsCount = 1)

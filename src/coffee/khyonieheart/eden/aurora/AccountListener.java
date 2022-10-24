@@ -34,7 +34,7 @@ public class AccountListener implements Listener
 			
 			PrintUtils.sendMessage(event.getPlayer(), "§6Hi §e" + event.getPlayer().getDisplayName() + "§6! You look to be new here.");
 			PrintUtils.sendMessage(event.getPlayer(), "§6In case you aren't part of our little community, we're a laid-back group of folks who play games here and there.");
-			PrintUtils.sendMessage(event.getPlayer(), "§6So kick back and take a load off, you're welcome here! -Yuki_emeralis");
+			PrintUtils.sendMessage(event.getPlayer(), "§6So kick back and take a load off, you're welcome here! -Khyonie");
 			PrintUtils.sendMessage(event.getPlayer(), "§a§o(We also have a discord! https://discord.gg/NTd99kJsvg)");
 		}
 

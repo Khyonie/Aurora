@@ -79,7 +79,7 @@ public class AuroraRpgStats
 
     public static BossBar registerNewBar(Player player, RpgStat stat)
     {
-        BossBar bar = Eden.getInstance().getServer().createBossBar("§r§9" + stat.getFriendlyName() + "  progress", BarColor.BLUE, BarStyle.SEGMENTED_10);
+        BossBar bar = Eden.getInstance().getServer().createBossBar("§r§e§l" + stat.getFriendlyName() + " progress", BarColor.YELLOW, BarStyle.SEGMENTED_10);
 
         TRACKING_PROGRESSION.put(player, new Tuple2<>(stat, bar));
         ModulePlayerData data = Eden.getPermissionsManager().getPlayerData(player).getModuleData("AuroraRPG");

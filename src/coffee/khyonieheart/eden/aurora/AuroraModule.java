@@ -34,7 +34,7 @@ import coffee.khyonieheart.eden.utils.PrintUtils;
     version = "1.3.7",
     supportedApiVersions = {"v1_19_R1"}
 )
-@LoadBefore(loadBefore = {"Surface2", "Checkpoint"})
+@LoadBefore(loadBefore = {"Surface", "Checkpoint"})
 @EdenConfig
 @ModuleFamily(name = "Aurora", icon = Material.SALMON)
 public class AuroraModule extends EdenModule
